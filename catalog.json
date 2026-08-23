@@ -1,0 +1,14 @@
+[
+  {"id":"point-density","use":"point aggregation","family":"point aggregation","question":"Where do overlapping regimes concentrate?","complexity":"advanced","tags":["density","millions","points"]},
+  {"id":"trajectory-bundle","use":"trajectory aggregation","family":"trajectory aggregation","question":"Which paths converge into shared corridors?","complexity":"advanced","tags":["paths","density","mobility"]},
+  {"id":"category-mix","use":"categorical aggregation","family":"categorical aggregation","question":"Where do populations dominate or mix?","complexity":"advanced","tags":["categories","mixing","territory"]},
+  {"id":"phase-portrait","use":"dynamical systems","family":"dynamical systems","question":"Where do damped trajectories converge?","complexity":"advanced","tags":["phase-space","trajectory","attractor"]},
+  {"id":"fractal-basin","use":"iterative systems","family":"iterative systems","question":"Which root captures each starting point?","complexity":"advanced","tags":["fractal","categorical","solver"]},
+  {"id":"parameter-sweep","use":"parameter space","family":"parameter space","question":"Where does a logistic system bifurcate into chaos?","complexity":"advanced","tags":["bifurcation","chaos","sweep"]},
+  {"id":"event-raster","use":"event analysis","family":"event analysis","question":"When and where do distributed incidents cluster?","complexity":"advanced","tags":["events","services","severity"]},
+  {"id":"uncertainty-fan","use":"ensemble uncertainty","family":"ensemble uncertainty","question":"How does forecast uncertainty spread over time?","complexity":"advanced","tags":["ensemble","uncertainty","forecast"]},
+  {"id":"network-density","use":"large network","family":"large network","question":"Which network routes form shared corridors?","complexity":"advanced","tags":["network","edges","density"]},
+  {"id":"terrain-scan","use":"scalar aggregation","family":"scalar aggregation","question":"What surface emerges from irregular elevation samples?","complexity":"advanced","tags":["terrain","mean","raster"]},
+  {"id":"geo-routes","use":"route density","family":"route density","question":"Where do origin-destination routes converge?","complexity":"advanced","tags":["routes","geo","corridor"]},
+  {"id":"rare-outliers","use":"anomaly analysis","family":"anomaly analysis","question":"Can rare observations survive dense aggregation?","complexity":"advanced","tags":["outlier","rare-event","categorical"]}
+]

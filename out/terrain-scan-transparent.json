@@ -1,0 +1,16 @@
+{
+  "demo": "terrain-scan",
+  "title": "Streaming terrain scan",
+  "requested_rows": 1000000,
+  "render_seconds": 0.7885,
+  "artifact": "terrain-scan-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 934877,
+    "visible_pixels": 664429,
+    "colorful_pixels": 662998
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

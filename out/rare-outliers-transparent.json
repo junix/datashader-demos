@@ -1,0 +1,16 @@
+{
+  "demo": "rare-outliers",
+  "title": "Rare-event outlier field",
+  "requested_rows": 1100000,
+  "render_seconds": 2.3861,
+  "artifact": "rare-outliers-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1092755,
+    "visible_pixels": 401893,
+    "colorful_pixels": 336059
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

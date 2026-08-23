@@ -2,7 +2,7 @@
   "demo": "category-mix",
   "title": "Categorical territories and their borderlands",
   "requested_rows": 1200000,
-  "render_seconds": 1.0502,
+  "render_seconds": 0.9779,
   "artifact": "category-mix-transparent.png",
   "pixel_stats": {
     "width": 1600,

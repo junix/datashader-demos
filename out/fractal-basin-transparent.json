@@ -1,0 +1,16 @@
+{
+  "demo": "fractal-basin",
+  "title": "Newton fractal basins",
+  "requested_rows": 500000,
+  "render_seconds": 0.5777,
+  "artifact": "fractal-basin-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1087549,
+    "visible_pixels": 511772,
+    "colorful_pixels": 510504
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

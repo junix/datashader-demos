@@ -5,6 +5,11 @@ import pytest
 from datashader_demos import DEMOS, render_demo, validate_png
 
 
+def test_reference_catalog_has_breadth() -> None:
+    assert len(DEMOS) >= 12
+    assert len({demo.subtitle for demo in DEMOS.values()}) >= 8
+
+
 @pytest.mark.parametrize("name", sorted(DEMOS))
 def test_demo_renders_transparent_png(name: str, tmp_path: Path) -> None:
     path = render_demo(name, tmp_path, rows=28_000)

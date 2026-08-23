@@ -1,0 +1,16 @@
+{
+  "demo": "phase-portrait",
+  "title": "Phase-space convergence atlas",
+  "requested_rows": 420000,
+  "render_seconds": 0.9543,
+  "artifact": "phase-portrait-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1109481,
+    "visible_pixels": 489757,
+    "colorful_pixels": 488238
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

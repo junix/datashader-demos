@@ -2,7 +2,7 @@
   "demo": "point-density",
   "title": "Constellation of concentrated demand",
   "requested_rows": 2000000,
-  "render_seconds": 1.0029,
+  "render_seconds": 1.1891,
   "artifact": "point-density-transparent.png",
   "pixel_stats": {
     "width": 1600,

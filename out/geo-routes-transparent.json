@@ -1,0 +1,16 @@
+{
+  "demo": "geo-routes",
+  "title": "Global route convergence",
+  "requested_rows": 580000,
+  "render_seconds": 1.7163,
+  "artifact": "geo-routes-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1038332,
+    "visible_pixels": 560913,
+    "colorful_pixels": 559428
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

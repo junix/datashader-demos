@@ -216,6 +216,297 @@ def _category_mix(rows: int) -> Image.Image:
     )
 
 
+def _phase_portrait(rows: int) -> Image.Image:
+    paths = max(80, rows // 160)
+    steps = 160
+    pid = np.repeat(np.arange(paths), steps)
+    t = np.tile(np.linspace(0, 18, steps), paths)
+    phase = (pid * 0.618) % 1 * np.pi * 2
+    decay = np.exp(-t * (0.018 + (pid % 9) * 0.002))
+    x = decay * (3.8 * np.cos(t + phase) + 0.5 * np.cos(3 * t))
+    y = decay * (2.7 * np.sin(t * 1.03 + phase) + 0.4 * np.sin(5 * t))
+    x = np.column_stack((x.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    y = np.column_stack((y.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    frame = pd.DataFrame({"x": x, "y": y})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-5, 5), y_range=(-4, 4)
+    )
+    agg = canvas.line(frame, "x", "y", agg=ds.count(), axis=0)
+    raster = tf.shade(
+        agg,
+        cmap=["#152d58", "#315f9d", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="eq_hist",
+        min_alpha=18,
+    ).to_pil()
+    return _decorate(
+        raster,
+        title="Phase-space convergence atlas",
+        subtitle=(
+            "Thousands of damped trajectories reveal attractors, overshoot, and orbital density."
+        ),
+        rows=len(frame),
+        legend=[("rare", "#315f9d"), ("stable", "#54d6c6"), ("attractor", "#ff6f91")],
+    )
+
+
+def _fractal_basin(rows: int) -> Image.Image:
+    side = max(180, int(np.sqrt(rows)))
+    xs = np.linspace(-2, 2, side)
+    ys = np.linspace(-1.7, 1.7, side)
+    x, y = np.meshgrid(xs, ys)
+    z = x + 1j * y
+    for _ in range(28):
+        z -= (z**3 - 1) / (3 * z**2 + 1e-9)
+    roots = np.asarray([1 + 0j, -0.5 + 0.866j, -0.5 - 0.866j])
+    root = np.argmin(np.abs(z[..., None] - roots), axis=2)
+    frame = pd.DataFrame(
+        {
+            "x": x.ravel(),
+            "y": y.ravel(),
+            "root": pd.Categorical(np.asarray(["root α", "root β", "root γ"])[root.ravel()]),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-2, 2), y_range=(-1.7, 1.7)
+    )
+    agg = canvas.points(frame, "x", "y", agg=ds.count_cat("root"))
+    colors = {"root α": "#54d6c6", "root β": "#7b9cff", "root γ": "#ff6f91"}
+    raster = tf.shade(agg, color_key=colors, how="linear", min_alpha=210).to_pil()
+    return _decorate(
+        raster,
+        title="Newton fractal basins",
+        subtitle="Every pixel records which complex root captures the iterative solver.",
+        rows=len(frame),
+        legend=list(colors.items()),
+    )
+
+
+def _parameter_sweep(rows: int) -> Image.Image:
+    side = max(250, int(np.sqrt(rows)))
+    a = np.linspace(2.5, 4, side)
+    x0 = np.linspace(0.02, 0.98, side)
+    aa, xx = np.meshgrid(a, x0)
+    state = xx.copy()
+    for _ in range(160):
+        state = aa * state * (1 - state)
+    frame = pd.DataFrame({"a": aa.ravel(), "state": state.ravel()})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(2.5, 4), y_range=(0, 1)
+    )
+    agg = canvas.points(frame, "a", "state", agg=ds.count())
+    raster = tf.shade(
+        agg,
+        cmap=["#152b50", "#315e9e", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="eq_hist",
+        min_alpha=20,
+    )
+    raster = tf.dynspread(raster, threshold=0.72, max_px=2).to_pil()
+    return _decorate(
+        raster,
+        title="Logistic-map parameter sweep",
+        subtitle="A dense bifurcation diagram exposes stable bands, period doubling, and chaos.",
+        rows=len(frame),
+        legend=[("stable", "#315e9e"), ("branching", "#54d6c6"), ("chaos", "#ff6f91")],
+    )
+
+
+def _event_raster(rows: int) -> Image.Image:
+    rng = np.random.default_rng(420)
+    service = rng.integers(0, 42, rows)
+    timev = rng.uniform(0, 1440, rows)
+    timev += 80 * np.sin(service * 0.7) + rng.normal(0, 18, rows)
+    severity = pd.Categorical(
+        np.asarray(["info", "warn", "critical"])[
+            (rng.random(rows) > 0.82).astype(int) + (rng.random(rows) > 0.97).astype(int)
+        ],
+        categories=["info", "warn", "critical"],
+    )
+    frame = pd.DataFrame({"time": timev, "service": service, "severity": severity})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-120, 1560), y_range=(-2, 44)
+    )
+    agg = canvas.points(frame, "time", "service", agg=ds.count_cat("severity"))
+    colors = {"info": "#315e9e", "warn": "#ffd166", "critical": "#ff6f91"}
+    raster = tf.shade(agg, color_key=colors, how="eq_hist", min_alpha=22).to_pil()
+    return _decorate(
+        raster,
+        title="Distributed event raster",
+        subtitle="Millions of service events expose periodic load, bursts, and critical incidents.",
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+def _uncertainty_fan(rows: int) -> Image.Image:
+    steps = 180
+    paths = max(40, rows // steps)
+    pid = np.repeat(np.arange(paths), steps)
+    t = np.tile(np.linspace(0, 1, steps), paths)
+    trend = 1.4 * np.sin(t * 6.2) + 2.2 * t
+    spread = (0.1 + 1.2 * t) * (np.sin(pid * 0.73 + t * 13) + 0.5 * np.cos(pid * 0.19 + t * 7))
+    y = trend + spread
+    t = np.column_stack((t.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    y = np.column_stack((y.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    frame = pd.DataFrame({"t": t, "y": y})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(0, 1), y_range=(-3, 5)
+    )
+    agg = canvas.line(frame, "t", "y", agg=ds.count(), axis=0)
+    raster = tf.shade(
+        agg,
+        cmap=["#172c55", "#35669c", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="eq_hist",
+        min_alpha=18,
+    ).to_pil()
+    return _decorate(
+        raster,
+        title="Monte Carlo uncertainty fan",
+        subtitle="Ensemble path density shows the forecast median, spread, and divergent tails.",
+        rows=len(frame),
+        legend=[("tail", "#35669c"), ("credible band", "#54d6c6"), ("mode", "#ffd166")],
+    )
+
+
+def _network_density(rows: int) -> Image.Image:
+    edges = max(200, rows // 45)
+    steps = 44
+    eid = np.repeat(np.arange(edges), steps)
+    t = np.tile(np.linspace(0, 1, steps), edges)
+    s = (eid * 37) % 97 / 97 * 2 * np.pi
+    target = (eid * 73) % 101 / 101 * 2 * np.pi
+    x0 = np.cos(s) * 4.8
+    y0 = np.sin(s) * 3.1
+    x1 = np.cos(target) * 4.8
+    y1 = np.sin(target) * 3.1
+    bend = np.sin(t * np.pi) * (1 + (eid % 7) * 0.12)
+    x = x0 * (1 - t) + x1 * t - bend * (y1 - y0) * 0.16
+    y = y0 * (1 - t) + y1 * t + bend * (x1 - x0) * 0.16
+    x = np.column_stack((x.reshape(edges, steps), np.full(edges, np.nan))).ravel()
+    y = np.column_stack((y.reshape(edges, steps), np.full(edges, np.nan))).ravel()
+    frame = pd.DataFrame({"x": x, "y": y})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-6, 6), y_range=(-4.5, 4.5)
+    )
+    agg = canvas.line(frame, "x", "y", agg=ds.count(), axis=0)
+    raster = tf.shade(
+        agg,
+        cmap=["#172c55", "#315f9d", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="eq_hist",
+        min_alpha=12,
+    ).to_pil()
+    return _decorate(
+        raster,
+        title="Edge-density network field",
+        subtitle=(
+            "Tens of thousands of curved connections become corridors instead of hairball clutter."
+        ),
+        rows=len(frame),
+        legend=[("edge", "#315f9d"), ("corridor", "#54d6c6"), ("hub", "#ff6f91")],
+    )
+
+
+def _terrain_scan(rows: int) -> Image.Image:
+    rng = np.random.default_rng(73)
+    x = rng.uniform(-6, 6, rows)
+    y = rng.uniform(-4, 4, rows)
+    z = (
+        np.sin(x * 1.4) * np.cos(y * 1.8)
+        + 0.55 * np.sin((x + y) * 3)
+        + 0.18 * rng.normal(size=rows)
+    )
+    frame = pd.DataFrame({"x": x, "y": y, "z": z})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-6, 6), y_range=(-4, 4)
+    )
+    agg = canvas.points(frame, "x", "y", agg=ds.mean("z"))
+    raster = tf.shade(
+        agg,
+        cmap=["#192b5c", "#3167a3", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="linear",
+        min_alpha=160,
+    ).to_pil()
+    return _decorate(
+        raster,
+        title="Streaming terrain scan",
+        subtitle=(
+            "Irregular samples aggregate into a mean-elevation raster without "
+            "interpolation fiction."
+        ),
+        rows=rows,
+        legend=[("low", "#192b5c"), ("mid", "#54d6c6"), ("high", "#ff6f91")],
+    )
+
+
+def _geo_routes(rows: int) -> Image.Image:
+    steps = 72
+    paths = max(120, rows // steps)
+    pid = np.repeat(np.arange(paths), steps)
+    t = np.tile(np.linspace(0, 1, steps), paths)
+    a = (pid * 37) % 360 * np.pi / 180
+    b = (pid * 83 + 47) % 360 * np.pi / 180
+    x0 = np.cos(a) * 5.5
+    y0 = np.sin(a) * 3.3
+    x1 = np.cos(b) * 5.5
+    y1 = np.sin(b) * 3.3
+    lift = np.sin(t * np.pi) * (1 + (pid % 11) * 0.09)
+    x = x0 * (1 - t) + x1 * t
+    y = y0 * (1 - t) + y1 * t + lift
+    x = np.column_stack((x.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    y = np.column_stack((y.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    frame = pd.DataFrame({"x": x, "y": y})
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-6.5, 6.5), y_range=(-4.4, 5.2)
+    )
+    agg = canvas.line(frame, "x", "y", agg=ds.count(), axis=0)
+    raster = tf.shade(
+        agg,
+        cmap=["#162b55", "#315f9d", "#54d6c6", "#ffd166", "#ff6f91"],
+        how="eq_hist",
+        min_alpha=14,
+    ).to_pil()
+    return _decorate(
+        raster,
+        title="Global route convergence",
+        subtitle="Curved origin-destination traces reveal shared corridors and regional gateways.",
+        rows=len(frame),
+        legend=[("route", "#315f9d"), ("corridor", "#54d6c6"), ("gateway", "#ff6f91")],
+    )
+
+
+def _rare_outliers(rows: int) -> Image.Image:
+    rng = np.random.default_rng(99)
+    x = rng.normal(size=rows) * 2.2
+    y = 0.6 * x + rng.normal(size=rows) * 1.2
+    rare = rng.random(rows) < 0.004
+    y[rare] += rng.choice([-1, 1], rare.sum()) * (4 + rng.random(rare.sum()) * 2)
+    frame = pd.DataFrame(
+        {
+            "x": x,
+            "y": y,
+            "kind": pd.Categorical(
+                np.where(rare, "rare", "baseline"), categories=["baseline", "rare"]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-8, 8), y_range=(-8, 8)
+    )
+    agg = canvas.points(frame, "x", "y", agg=ds.count_cat("kind"))
+    colors = {"baseline": "#54d6c6", "rare": "#ff6f91"}
+    raster = tf.shade(agg, color_key=colors, how="eq_hist", min_alpha=24)
+    raster = tf.spread(raster, px=2).to_pil()
+    return _decorate(
+        raster,
+        title="Rare-event outlier field",
+        subtitle=(
+            "A categorical aggregate preserves exceptional observations inside "
+            "a dense baseline cloud."
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
 DEMOS: dict[str, Demo] = {
     "point-density": Demo(
         "point-density",
@@ -237,6 +528,65 @@ DEMOS: dict[str, Demo] = {
         "Categorical point aggregation",
         1_200_000,
         _category_mix,
+    ),
+    "phase-portrait": Demo(
+        "phase-portrait",
+        "Phase-space convergence atlas",
+        "Trajectory density",
+        420_000,
+        _phase_portrait,
+    ),
+    "fractal-basin": Demo(
+        "fractal-basin",
+        "Newton fractal basins",
+        "Categorical iterative basin",
+        500_000,
+        _fractal_basin,
+    ),
+    "parameter-sweep": Demo(
+        "parameter-sweep",
+        "Logistic-map parameter sweep",
+        "Dense bifurcation diagram",
+        650_000,
+        _parameter_sweep,
+    ),
+    "event-raster": Demo(
+        "event-raster",
+        "Distributed event raster",
+        "Categorical event aggregation",
+        1_200_000,
+        _event_raster,
+    ),
+    "uncertainty-fan": Demo(
+        "uncertainty-fan",
+        "Monte Carlo uncertainty fan",
+        "Ensemble line density",
+        480_000,
+        _uncertainty_fan,
+    ),
+    "network-density": Demo(
+        "network-density",
+        "Edge-density network field",
+        "Connection density",
+        520_000,
+        _network_density,
+    ),
+    "terrain-scan": Demo(
+        "terrain-scan",
+        "Streaming terrain scan",
+        "Mean scalar aggregation",
+        1_000_000,
+        _terrain_scan,
+    ),
+    "geo-routes": Demo(
+        "geo-routes", "Global route convergence", "Route density", 580_000, _geo_routes
+    ),
+    "rare-outliers": Demo(
+        "rare-outliers",
+        "Rare-event outlier field",
+        "Categorical anomaly density",
+        1_100_000,
+        _rare_outliers,
     ),
 }
 

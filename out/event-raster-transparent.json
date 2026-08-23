@@ -1,0 +1,16 @@
+{
+  "demo": "event-raster",
+  "title": "Distributed event raster",
+  "requested_rows": 1200000,
+  "render_seconds": 0.5642,
+  "artifact": "event-raster-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1533163,
+    "visible_pixels": 64981,
+    "colorful_pixels": 51201
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

@@ -1,0 +1,16 @@
+{
+  "demo": "parameter-sweep",
+  "title": "Logistic-map parameter sweep",
+  "requested_rows": 650000,
+  "render_seconds": 0.415,
+  "artifact": "parameter-sweep-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1517224,
+    "visible_pixels": 81987,
+    "colorful_pixels": 80415
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

@@ -1,0 +1,16 @@
+{
+  "demo": "network-density",
+  "title": "Edge-density network field",
+  "requested_rows": 520000,
+  "render_seconds": 0.4192,
+  "artifact": "network-density-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 956690,
+    "visible_pixels": 642607,
+    "colorful_pixels": 641244
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

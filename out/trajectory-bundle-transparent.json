@@ -2,7 +2,7 @@
   "demo": "trajectory-bundle",
   "title": "Braided trajectories through a shared field",
   "requested_rows": 500000,
-  "render_seconds": 1.5059,
+  "render_seconds": 1.2546,
   "artifact": "trajectory-bundle-transparent.png",
   "pixel_stats": {
     "width": 1600,

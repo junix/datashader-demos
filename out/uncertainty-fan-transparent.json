@@ -1,0 +1,16 @@
+{
+  "demo": "uncertainty-fan",
+  "title": "Monte Carlo uncertainty fan",
+  "requested_rows": 480000,
+  "render_seconds": 0.8061,
+  "artifact": "uncertainty-fan-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1301226,
+    "visible_pixels": 297989,
+    "colorful_pixels": 296545
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}
