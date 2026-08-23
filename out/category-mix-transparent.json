@@ -1,0 +1,16 @@
+{
+  "demo": "category-mix",
+  "title": "Categorical territories and their borderlands",
+  "requested_rows": 1200000,
+  "render_seconds": 1.0502,
+  "artifact": "category-mix-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1141460,
+    "visible_pixels": 275401,
+    "colorful_pixels": 265855
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

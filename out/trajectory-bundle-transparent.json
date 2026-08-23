@@ -1,0 +1,16 @@
+{
+  "demo": "trajectory-bundle",
+  "title": "Braided trajectories through a shared field",
+  "requested_rows": 500000,
+  "render_seconds": 1.5059,
+  "artifact": "trajectory-bundle-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 908983,
+    "visible_pixels": 690151,
+    "colorful_pixels": 688423
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}

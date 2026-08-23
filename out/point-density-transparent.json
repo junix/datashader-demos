@@ -1,0 +1,16 @@
+{
+  "demo": "point-density",
+  "title": "Constellation of concentrated demand",
+  "requested_rows": 2000000,
+  "render_seconds": 1.0029,
+  "artifact": "point-density-transparent.png",
+  "pixel_stats": {
+    "width": 1600,
+    "height": 1000,
+    "transparent_pixels": 1075560,
+    "visible_pixels": 523639,
+    "colorful_pixels": 522048
+  },
+  "background": "transparent",
+  "data": "deterministic synthetic fixture"
+}
