@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>datashader-demos 架构文档</title>
+<style>
+  :root {
+    --ink: #1a2a44;
+    --ink-soft: #3d4f6f;
+    --ink-muted: #6b7c95;
+    --accent: #b54362;
+    --accent-soft: #e8a3b4;
+    --teal: #2a9d8f;
+    --teal-soft: #a8dadc;
+    --gold: #e9c46a;
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(26,42,68,0.06), 0 8px 24px rgba(26,42,68,0.04);
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* Section */
+  section {
+    margin-bottom: 64px;
+  }
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  h2::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin-right: 12px;
+    vertical-align: -3px;
+  }
+  .section-sub {
+    color: var(--ink-muted);
+    font-size: 15px;
+    margin-bottom: 28px;
+    margin-left: 16px;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 24px 0 10px;
+  }
+
+  /* Feature list */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal-soft), #e6f4f5);
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .feature h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .feature p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* Diagram wrapper */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
+  }
+  svg.diagram {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  /* Walkthrough */
+  .walkthrough-steps {
+    position: relative;
+    margin: 28px 0 0 12px;
+    padding-left: 28px;
+    border-left: 2px solid var(--border);
+  }
+  .walkthrough-step {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .walkthrough-step:last-child { margin-bottom: 0; }
+  .step-num {
+    position: absolute;
+    left: -40px;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .walkthrough-step h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .walkthrough-step p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* Prose */
+  .prose p {
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    font-size: 15px;
+  }
+  .prose strong { color: var(--ink); font-weight: 600; }
+
+  /* Grid of demo families */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .demo-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .demo-item .demo-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .demo-item .demo-name {
+    color: var(--ink);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* Legend helpers */
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* Code-like label */
+  .mono { font-family: var(--mono); font-size: 0.92em; }
+
+  /* Footer */
+  .footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+
+  /* JS-disabled fallback: show all diagram groups */
+  .diag-group { opacity: 1; }
+
+  /* Print */
+  @media print {
+    body { background: #fff; font-size: 12px; }
+    .container { padding: 0; max-width: 100%; }
+    .hero { padding: 20px 0 16px; margin-bottom: 20px; }
+    .hero h1 { font-size: 24px; }
+    section { margin-bottom: 24px; page-break-inside: avoid; }
+    h2 { font-size: 18px; }
+    .diagram-wrap { box-shadow: none; border: 1px solid #ccc; padding: 12px; }
+    .features { gap: 8px; }
+    .feature { padding: 10px 12px; box-shadow: none; }
+    .walkthrough-steps { margin-top: 12px; }
+  }
+
+  /* Reduced motion: disable animations, show final state */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .diag-group { opacity: 1 !important; transform: none !important; }
+    .diag-flow { stroke-dashoffset: 0 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-badge">RASTER AGGREGATION</div>
+    <h1>datashader-demos 架构</h1>
+    <p>面向大规模数据的透明 PNG 渲染演示集——基于 Datashader 的栅格聚合管线，覆盖点、轨迹、类别、分形盆地、事件、不确定性、网络、地形、路径与稀有观测共十二种生产级场景。</p>
+  </header>
+
+  <!-- 1. 产品概述 -->
+  <section id="overview">
+    <h2>产品概览</h2>
+    <p class="section-sub">一句话定位 + 核心能力清单</p>
+    <div class="prose">
+      <p><strong>datashader-demos</strong> 是一个演示性质的 Python 包，专注于展示 <strong>Datashader</strong> 栅格聚合（raster aggregation）在大数据量下的可视化能力。当数据量大到无法逐点绘制时，Datashader 先在画布栅格上做聚合统计，再把聚合结果映射为颜色——这让百万级乃至更高量级的数据渲染成为可能。</p>
+      <p>项目输出 12 个独立场景的透明 PNG 图像，每个场景附带像素级校验与元数据清单（manifest），确保输出质量稳定、可重复。所有数据均为确定性合成数据集（deterministic synthetic fixture），不依赖外部数据源。</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">12</div>
+        <h4>十二种演示场景</h4>
+        <p>覆盖点密度、轨迹束、类别混合、相空间、分形盆地、参数扫描、事件栅格、不确定性扇、网络密度、地形扫描、地理路径、稀有异常。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">PNG</div>
+        <h4>透明背景输出</h4>
+        <p>1600x1000 透明 PNG，自带标题、副标题、图例与行数标注，可直接嵌入演示文稿或网页而无需二次裁剪。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✓</div>
+        <h4>像素级校验</h4>
+        <p>自动验证透明像素占比、可见像素数量、彩色数据像素数量，防止渲染退化为空白或单色图。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h4>确定性合成数据</h4>
+        <p>所有场景使用固定随机种子的合成数据，渲染结果完全可复现，无需下载外部数据集。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📋</div>
+        <h4>元数据清单</h4>
+        <p>每个 PNG 配套同名 JSON 清单，记录渲染耗时、像素统计、行数、背景类型等，便于检索与质量追踪。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">CLI</div>
+        <h4>命令行接口</h4>
+        <p>支持 render / validate / list 三个子命令，可指定场景、输出目录与行数覆盖，适配 CI 与批量生成。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 模块架构 -->
+  <section id="modules">
+    <h2>模块架构</h2>
+    <p class="section-sub">系统级模块划分与依赖关系（非类级、非函数级）</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">图 1 · 模块依赖关系图</div>
+      <svg class="diagram" viewBox="0 0 800 420" width="800" height="420" role="img" aria-label="模块依赖关系图">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+          </marker>
+          <linearGradient id="grad-cli" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#fef2f4;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#fce7ec;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad-render" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#e6f4f5;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#d4ecee;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad-ds" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#eef2ff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e0e7ff;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad-np" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#fffbeb;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#fef3c7;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+
+        <!-- CLI module -->
+        <g class="diag-group" data-diag="modules" data-idx="0">
+          <rect x="320" y="30" width="160" height="64" rx="10" fill="url(#grad-cli)" stroke="#e8a3b4" stroke-width="1.5"/>
+          <text x="400" y="58" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a44">cli 模块</text>
+          <text x="400" y="78" text-anchor="middle" font-size="11" fill="#6b7c95">命令行入口 / 参数解析</text>
+        </g>
+
+        <!-- Render module -->
+        <g class="diag-group" data-diag="modules" data-idx="1">
+          <rect x="290" y="150" width="220" height="80" rx="10" fill="url(#grad-render)" stroke="#6bb8ba" stroke-width="1.5"/>
+          <text x="400" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a44">render 模块</text>
+          <text x="400" y="200" text-anchor="middle" font-size="11" fill="#6b7c95">12 个渲染器 · 装饰器 · 校验器</text>
+          <text x="400" y="216" text-anchor="middle" font-size="11" fill="#6b7c95">DEMOS 注册表 · PixelStats</text>
+        </g>
+
+        <!-- Datashader -->
+        <g class="diag-group" data-diag="modules" data-idx="2">
+          <rect x="60" y="290" width="160" height="64" rx="10" fill="url(#grad-ds)" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="140" y="318" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">Datashader</text>
+          <text x="140" y="336" text-anchor="middle" font-size="11" fill="#6b7c95">栅格聚合 / 着色</text>
+        </g>
+
+        <!-- NumPy / Pandas -->
+        <g class="diag-group" data-diag="modules" data-idx="3">
+          <rect x="260" y="290" width="160" height="64" rx="10" fill="url(#grad-np)" stroke="#fcd34d" stroke-width="1.5"/>
+          <text x="340" y="318" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">NumPy / Pandas</text>
+          <text x="340" y="336" text-anchor="middle" font-size="11" fill="#6b7c95">合成数据 / 数据帧</text>
+        </g>
+
+        <!-- Pillow -->
+        <g class="diag-group" data-diag="modules" data-idx="4">
+          <rect x="460" y="290" width="160" height="64" rx="10" fill="url(#grad-ds)" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="540" y="318" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">Pillow (PIL)</text>
+          <text x="540" y="336" text-anchor="middle" font-size="11" fill="#6b7c95">图像装饰 / PNG 输出</text>
+        </g>
+
+        <!-- Catalog JSON -->
+        <g class="diag-group" data-diag="modules" data-idx="5">
+          <rect x="620" y="290" width="140" height="64" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="690" y="318" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">catalog.json</text>
+          <text x="690" y="336" text-anchor="middle" font-size="11" fill="#6b7c95">场景索引元数据</text>
+        </g>
+
+        <!-- Arrows -->
+        <g class="diag-group" data-diag="modules" data-idx="6">
+          <line x1="400" y1="94" x2="400" y2="150" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="340" y1="230" x2="180" y2="290" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="370" y1="230" x2="340" y2="290" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="430" y1="230" x2="500" y2="290" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="480" y1="230" x2="640" y2="290" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+        </g>
+      </svg>
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-swatch" style="background:#e8a3b4"></span>项目自有模块</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#a5b4fc"></span>第三方依赖</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#cbd5e1"></span>静态配置文件</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>项目代码量约 700 行，集中在两个文件中：<span class="mono">cli.py</span> 与 <span class="mono">render.py</span>。这是一个典型的「薄壳 + 厚内核」结构——CLI 层只做参数解析与调度，渲染层承载全部业务逻辑。</p>
+      <p><strong>cli.py（约 50 行）</strong>是项目的入口层。它用 argparse 定义了 <span class="mono">render</span>、<span class="mono">validate</span>、<span class="mono">list</span> 三个子命令，将用户输入转化为对 render 模块的函数调用。它不直接操作图像或数据，职责单一。</p>
+      <p><strong>render.py（约 640 行）</strong>是项目的核心。它包含三部分内容：① 数据结构定义（Demo、PixelStats）与 DEMOS 注册表；② 12 个场景渲染函数，每个函数内部完成「合成数据 → Datashader 聚合 → 着色 → 装饰 → 输出」的完整管线；③ 像素级校验函数与主渲染调度函数。</p>
+      <p>第三方依赖有四个：<strong>datashader</strong> 负责栅格聚合与颜色映射，是项目的核心能力来源；<strong>numpy</strong> 负责合成数据生成与像素统计；<strong>pandas</strong> 负责把合成数据封装为 DataFrame 供 Datashader 消费；<strong>pillow</strong> 负责在图像上绘制标题、图例等装饰元素，并输出 PNG 文件。</p>
+      <p><strong>catalog.json</strong> 是一个独立的元数据索引文件，为 12 个场景提供了按用途、系列、复杂度、标签检索的能力，与代码中的 DEMOS 注册表形成「代码即真相 + JSON 可检索」的双轨结构。</p>
+    </div>
+  </section>
+
+  <!-- 3. 渲染管线 -->
+  <section id="pipeline">
+    <h2>渲染管线</h2>
+    <p class="section-sub">从命令行调用到 PNG 落地的完整数据流向</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">图 2 · 单场景渲染管线（端到端数据流）</div>
+      <svg class="diagram" viewBox="0 0 900 280" width="900" height="280" role="img" aria-label="渲染管线图">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a9d8f"/>
+          </marker>
+          <linearGradient id="grad-step" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#f1f5f9;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+
+        <!-- Step 1: CLI -->
+        <g class="diag-group" data-diag="pipeline" data-idx="0">
+          <rect x="20" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#b54362" stroke-width="1.5"/>
+          <text x="75" y="130" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">CLI 调用</text>
+          <text x="75" y="150" text-anchor="middle" font-size="10" fill="#6b7c95">render 子命令</text>
+        </g>
+
+        <!-- Step 2: 合成数据 -->
+        <g class="diag-group" data-diag="pipeline" data-idx="1">
+          <rect x="170" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="225" y="128" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">合成数据</text>
+          <text x="225" y="146" text-anchor="middle" font-size="10" fill="#6b7c95">NumPy 确定性生成</text>
+          <text x="225" y="160" text-anchor="middle" font-size="10" fill="#6b7c95">固定随机种子</text>
+        </g>
+
+        <!-- Step 3: DataFrame -->
+        <g class="diag-group" data-diag="pipeline" data-idx="2">
+          <rect x="320" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="375" y="128" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">DataFrame</text>
+          <text x="375" y="146" text-anchor="middle" font-size="10" fill="#6b7c95">Pandas 封装</text>
+          <text x="375" y="160" text-anchor="middle" font-size="10" fill="#6b7c95">含类别列可选</text>
+        </g>
+
+        <!-- Step 4: 栅格聚合 -->
+        <g class="diag-group" data-diag="pipeline" data-idx="3">
+          <rect x="470" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="525" y="125" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">栅格聚合</text>
+          <text x="525" y="143" text-anchor="middle" font-size="10" fill="#6b7c95">Canvas.points / line</text>
+          <text x="525" y="157" text-anchor="middle" font-size="10" fill="#6b7c95">count / count_cat / mean</text>
+        </g>
+
+        <!-- Step 5: 着色 -->
+        <g class="diag-group" data-diag="pipeline" data-idx="4">
+          <rect x="620" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="675" y="125" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">颜色映射</text>
+          <text x="675" y="143" text-anchor="middle" font-size="10" fill="#6b7c95">tf.shade + cmap</text>
+          <text x="675" y="157" text-anchor="middle" font-size="10" fill="#6b7c95">eq_hist / linear</text>
+        </g>
+
+        <!-- Step 6: 装饰 -->
+        <g class="diag-group" data-diag="pipeline" data-idx="5">
+          <rect x="770" y="100" width="110" height="70" rx="8" fill="url(#grad-step)" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="825" y="128" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">图像装饰</text>
+          <text x="825" y="146" text-anchor="middle" font-size="10" fill="#6b7c95">标题 / 图例 / 标注</text>
+          <text x="825" y="160" text-anchor="middle" font-size="10" fill="#6b7c95">透明背景合成</text>
+        </g>
+
+        <!-- Output row -->
+        <g class="diag-group" data-diag="pipeline" data-idx="6">
+          <!-- PNG output -->
+          <rect x="320" y="220" width="100" height="42" rx="6" fill="#fef2f4" stroke="#e8a3b4" stroke-width="1.5"/>
+          <text x="370" y="246" text-anchor="middle" font-size="12" font-weight="600" fill="#b54362">PNG 图像</text>
+
+          <!-- JSON manifest -->
+          <rect x="480" y="220" width="100" height="42" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="530" y="246" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">JSON 清单</text>
+
+          <!-- Validation -->
+          <rect x="640" y="220" width="100" height="42" rx="6" fill="#e6f4f5" stroke="#6bb8ba" stroke-width="1.5"/>
+          <text x="690" y="246" text-anchor="middle" font-size="12" font-weight="600" fill="#2a9d8f">像素校验</text>
+        </g>
+
+        <!-- Arrows: main pipeline -->
+        <g class="diag-flow" data-diag="pipeline" data-idx="7">
+          <line x1="130" y1="135" x2="170" y2="135" stroke="#2a9d8f" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="280" y1="135" x2="320" y2="135" stroke="#2a9d8f" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="430" y1="135" x2="470" y2="135" stroke="#2a9d8f" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="580" y1="135" x2="620" y2="135" stroke="#2a9d8f" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="730" y1="135" x2="770" y2="135" stroke="#2a9d8f" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <!-- Down to outputs -->
+          <line x1="525" y1="170" x2="370" y2="220" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+          <line x1="675" y1="170" x2="530" y2="220" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+          <line x1="825" y1="170" x2="690" y2="220" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+        </g>
+      </svg>
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-swatch" style="background:#b54362"></span>入口层</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#e9c46a"></span>数据层</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#2a9d8f"></span>聚合与着色</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#a5b4fc"></span>输出层</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>每一个场景的渲染都遵循同样的六步管线。这条管线的设计哲学是：<strong>数据生成与渲染完全解耦，每一步的输出都是下一站的标准输入</strong>。</p>
+      <p><strong>第一步：CLI 调用。</strong>用户执行 <span class="mono">datashader-demos render point-density</span>，CLI 解析参数后调用 <span class="mono">render_demo()</span> 函数。可以通过 <span class="mono">--rows</span> 覆盖默认行数，也可以指定任意子集的场景名称。</p>
+      <p><strong>第二步：合成数据。</strong>每个渲染器内部用 NumPy 生成确定性数据——固定随机种子（如 42、84、73 等）确保每次运行输出完全一致。数据形态因场景而异：点场景生成二维坐标数组，轨迹场景生成带路径 ID 的时序点列，分形场景则在复数网格上做牛顿迭代。</p>
+      <p><strong>第三步：DataFrame 封装。</strong>合成好的 NumPy 数组被封装为 Pandas DataFrame。对于分类场景（category-mix、fractal-basin、event-raster 等），还会用 <span class="mono">pd.Categorical</span> 声明类别列，供 Datashader 的 <span class="mono">count_cat</span> 聚合器使用。</p>
+      <p><strong>第四步：栅格聚合。</strong>这是 Datashader 的核心能力。<span class="mono">ds.Canvas</span> 定义画布尺寸与数据坐标范围，<span class="mono">canvas.points()</span> 或 <span class="mono">canvas.line()</span> 将数据点/线投影到栅格上，并用指定的聚合函数（<span class="mono">count</span>、<span class="mono">count_cat</span>、<span class="mono">mean</span>）统计每个像素的值。输出是一个 xarray 二维数组（aggregation）。</p>
+      <p><strong>第五步：颜色映射。</strong><span class="mono">tf.shade()</span> 将聚合值映射为颜色。关键参数是 <span class="mono">cmap</span>（色带）、<span class="mono">how</span>（映射方式：eq_hist 等直方图或 linear 线性）和 <span class="min">min_alpha</span>（最低透明度，确保稀疏数据也可见）。部分场景还使用 <span class="mono">dynspread</span> 或 <span class="mono">spread</span> 做像素扩展，让稀疏点更醒目。</p>
+      <p><strong>第六步：图像装饰与输出。</strong>着色后的栅格被贴到一张 1600x1000 的透明画布上，Pillow 绘制标题、副标题、图例、行数标注与来源说明。最终保存为 PNG，同时生成同名 JSON 清单并执行像素级校验。</p>
+    </div>
+  </section>
+
+  <!-- 4. 场景族分类 -->
+  <section id="families">
+    <h2>场景族分类</h2>
+    <p class="section-sub">12 个演示场景按聚合方式与数据形态归类</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">图 3 · 十二场景族系图谱</div>
+      <svg class="diagram" viewBox="0 0 860 480" width="860" height="480" role="img" aria-label="场景族系图谱">
+        <defs>
+          <radialGradient id="radial-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color:#fef2f4;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#fce7ec;stop-opacity:1" />
+          </radialGradient>
+        </defs>
+
+        <!-- Center: DEMOS registry -->
+        <g class="diag-group" data-diag="families" data-idx="0">
+          <circle cx="430" cy="240" r="70" fill="url(#radial-core)" stroke="#b54362" stroke-width="2"/>
+          <text x="430" y="232" text-anchor="middle" font-size="14" font-weight="700" fill="#b54362">DEMOS</text>
+          <text x="430" y="252" text-anchor="middle" font-size="11" fill="#6b7c95">渲染器注册表</text>
+          <text x="430" y="268" text-anchor="middle" font-size="11" fill="#6b7c95">12 个场景</text>
+        </g>
+
+        <!-- Family 1: 点聚合 (左上) -->
+        <g class="diag-group" data-diag="families" data-idx="1">
+          <rect x="40" y="40" width="200" height="90" rx="10" fill="#e6f4f5" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="140" y="65" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">点聚合族</text>
+          <text x="140" y="85" text-anchor="middle" font-size="11" fill="#475569">point-density · 2M 行</text>
+          <text x="140" y="103" text-anchor="middle" font-size="11" fill="#475569">count / eq_hist</text>
+          <line x1="240" y1="85" x2="360" y2="200" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+
+        <!-- Family 2: 轨迹族 (右上) -->
+        <g class="diag-group" data-diag="families" data-idx="2">
+          <rect x="620" y="40" width="200" height="90" rx="10" fill="#e6f4f5" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="720" y="65" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">轨迹族</text>
+          <text x="720" y="85" text-anchor="middle" font-size="11" fill="#475569">trajectory-bundle · phase-portrait</text>
+          <text x="720" y="103" text-anchor="middle" font-size="11" fill="#475569">canvas.line / count</text>
+          <line x1="620" y1="85" x2="500" y2="200" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+
+        <!-- Family 3: 类别族 (左中) -->
+        <g class="diag-group" data-diag="families" data-idx="3">
+          <rect x="20" y="195" width="220" height="90" rx="10" fill="#fffbeb" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="130" y="222" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">类别聚合族</text>
+          <text x="130" y="242" text-anchor="middle" font-size="11" fill="#475569">category-mix · fractal-basin</text>
+          <text x="130" y="258" text-anchor="middle" font-size="11" fill="#475569">event-raster · rare-outliers</text>
+          <line x1="240" y1="240" x2="360" y2="240" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+
+        <!-- Family 4: 网络路径族 (右中) -->
+        <g class="diag-group" data-diag="families" data-idx="4">
+          <rect x="620" y="195" width="220" height="90" rx="10" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="730" y="222" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">网络与路径族</text>
+          <text x="730" y="242" text-anchor="middle" font-size="11" fill="#475569">network-density · geo-routes</text>
+          <text x="730" y="258" text-anchor="middle" font-size="11" fill="#475569">曲线连接 / 走廊密度</text>
+          <line x1="620" y1="240" x2="500" y2="240" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+
+        <!-- Family 5: 参数系统族 (左下) -->
+        <g class="diag-group" data-diag="families" data-idx="5">
+          <rect x="40" y="350" width="200" height="90" rx="10" fill="#fffbeb" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="140" y="377" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">迭代与参数族</text>
+          <text x="140" y="397" text-anchor="middle" font-size="11" fill="#475569">fractal-basin · parameter-sweep</text>
+          <text x="140" y="413" text-anchor="middle" font-size="11" fill="#475569">牛顿迭代 / 逻辑映射</text>
+          <line x1="240" y1="395" x2="360" y2="280" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+
+        <!-- Family 6: 标量与其他族 (右下) -->
+        <g class="diag-group" data-diag="families" data-idx="6">
+          <rect x="620" y="350" width="200" height="90" rx="10" fill="#e6f4f5" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="720" y="377" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">标量与不确定性族</text>
+          <text x="720" y="397" text-anchor="middle" font-size="11" fill="#475569">terrain-scan · uncertainty-fan</text>
+          <text x="720" y="413" text-anchor="middle" font-size="11" fill="#475569">mean 聚合 / 系综密度</text>
+          <line x1="620" y1="395" x2="500" y2="280" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+        </g>
+      </svg>
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-swatch" style="background:#2a9d8f"></span>数值密度类</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#e9c46a"></span>分类/迭代类</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#a5b4fc"></span>网络连接类</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>12 个场景可归入六个族系。每个族系共享相似的聚合策略与数据组织方式，但在业务语义和视觉表达上各有侧重。</p>
+      <p><strong>点聚合族</strong>是最基础的 Datashader 用法——把大量二维点投影到栅格上计数，用颜色深浅表示密度。<span class="mono">point-density</span> 场景用 200 万个点演示了五个重叠分布的聚集模式。</p>
+      <p><strong>轨迹族</strong>使用 <span class="mono">canvas.line()</span> 而非 points，数据组织为带 NaN 分隔符的连续坐标序列（NaN 的作用是切断路径，防止 Datashader 把上一条轨迹的终点与下一条的起点相连）。<span class="mono">trajectory-bundle</span> 和 <span class="mono">phase-portrait</span> 都属于这一类。</p>
+      <p><strong>类别聚合族</strong>在计数的同时按类别分色，核心是 <span class="mono">count_cat</span> 聚合器。这一族场景最多——category-mix（四群体领地）、fractal-basin（三牛顿根盆地）、event-raster（三级严重度事件）、rare-outliers（基线/稀有），共四个场景。</p>
+      <p><strong>网络与路径族</strong>同样是线聚合，但数据生成的语义不同——不是运动轨迹，而是节点间的曲线连接。<span class="mono">network-density</span> 演示了全连接网络的边密度走廊，<span class="mono">geo-routes</span> 则模拟了地理起终点对之间的弧形航线。</p>
+      <p><strong>迭代与参数族</strong>的特点是数据不是随机生成的，而是通过数学迭代产生。<span class="mono">fractal-basin</span> 用牛顿法在复数网格上迭代求根，<span class="mono">parameter-sweep</span> 用逻辑映射做分岔图。它们在聚合方式上属于点聚合或类别聚合，但数据来源是确定的数学过程。</p>
+      <p><strong>标量与不确定性族</strong>使用非计数聚合器。<span class="mono">terrain-scan</span> 用 <span class="mono">mean("z")</span> 做平均高程聚合，<span class="mono">uncertainty-fan</span> 则是系综路径的线密度图——这两个场景分别代表了「标量场」和「概率分布」两种常见的非计数可视化需求。</p>
+    </div>
+
+    <h3>完整场景清单</h3>
+    <div class="demo-grid">
+      <div class="demo-item"><div class="demo-id">point-density</div><div class="demo-name">点密度分布</div></div>
+      <div class="demo-item"><div class="demo-id">trajectory-bundle</div><div class="demo-name">轨迹束走廊</div></div>
+      <div class="demo-item"><div class="demo-id">category-mix</div><div class="demo-name">类别混合领地</div></div>
+      <div class="demo-item"><div class="demo-id">phase-portrait</div><div class="demo-name">相空间收敛</div></div>
+      <div class="demo-item"><div class="demo-id">fractal-basin</div><div class="demo-name">牛顿分形盆地</div></div>
+      <div class="demo-item"><div class="demo-id">parameter-sweep</div><div class="demo-name">逻辑映射分岔</div></div>
+      <div class="demo-item"><div class="demo-id">event-raster</div><div class="demo-name">分布式事件栅格</div></div>
+      <div class="demo-item"><div class="demo-id">uncertainty-fan</div><div class="demo-name">蒙特卡洛不确定性扇</div></div>
+      <div class="demo-item"><div class="demo-id">network-density</div><div class="demo-name">网络边密度</div></div>
+      <div class="demo-item"><div class="demo-id">terrain-scan</div><div class="demo-name">流式地形扫描</div></div>
+      <div class="demo-item"><div class="demo-id">geo-routes</div><div class="demo-name">地理路径收敛</div></div>
+      <div class="demo-item"><div class="demo-id">rare-outliers</div><div class="demo-name">稀有异常观测</div></div>
+    </div>
+  </section>
+
+  <!-- 5. 质量保证体系 -->
+  <section id="quality">
+    <h2>质量保证体系</h2>
+    <p class="section-sub">从像素校验到测试闭环的多层质量防线</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">图 4 · 质量保证三层防线</div>
+      <svg class="diagram" viewBox="0 0 800 340" width="800" height="340" role="img" aria-label="质量保证体系图">
+        <defs>
+          <linearGradient id="grad-layer1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#e6f4f5;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#d4ecee;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad-layer2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#fffbeb;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#fef3c7;stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad-layer3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#fef2f4;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#fce7ec;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+
+        <!-- Layer 1: 像素校验 -->
+        <g class="diag-group" data-diag="quality" data-idx="0">
+          <rect x="40" y="40" width="720" height="76" rx="10" fill="url(#grad-layer1)" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="80" y="70" font-size="14" font-weight="600" fill="#1a2a44">第一层 · 像素级校验（validate_png）</text>
+          <text x="80" y="92" font-size="12" fill="#475569">渲染完成即时执行，检查三个硬性指标，任一不达标则抛 ValueError</text>
+
+          <g transform="translate(400, 50)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#6bb8ba" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#2a9d8f">透明像素占比</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">≥ 25%</text>
+          </g>
+          <g transform="translate(520, 50)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#6bb8ba" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#2a9d8f">可见像素数</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">≥ 15,000</text>
+          </g>
+          <g transform="translate(640, 50)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#6bb8ba" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#2a9d8f">彩色像素数</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">≥ 5,000</text>
+          </g>
+        </g>
+
+        <!-- Layer 2: 清单元数据 -->
+        <g class="diag-group" data-diag="quality" data-idx="1">
+          <rect x="40" y="140" width="720" height="76" rx="10" fill="url(#grad-layer2)" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="80" y="170" font-size="14" font-weight="600" fill="#1a2a44">第二层 · 元数据清单（manifest JSON）</text>
+          <text x="80" y="192" font-size="12" fill="#475569">每个 PNG 配套同名 JSON，记录渲染参数、耗时与像素统计，便于自动化追踪</text>
+
+          <g transform="translate(400, 150)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#fcd34d" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b45309">渲染耗时</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">render_seconds</text>
+          </g>
+          <g transform="translate(520, 150)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#fcd34d" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b45309">像素统计</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">PixelStats</text>
+          </g>
+          <g transform="translate(640, 150)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#fcd34d" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b45309">数据行数</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">requested_rows</text>
+          </g>
+        </g>
+
+        <!-- Layer 3: pytest -->
+        <g class="diag-group" data-diag="quality" data-idx="2">
+          <rect x="40" y="240" width="720" height="76" rx="10" fill="url(#grad-layer3)" stroke="#b54362" stroke-width="1.5"/>
+          <text x="80" y="270" font-size="14" font-weight="600" fill="#1a2a44">第三层 · pytest 测试套件</text>
+          <text x="80" y="292" font-size="12" fill="#475569">CI 级别的全场景回归测试，覆盖广度与输出正确性</text>
+
+          <g transform="translate(400, 250)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#e8a3b4" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b54362">广度测试</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">≥12 场景, ≥8 副标题</text>
+          </g>
+          <g transform="translate(520, 250)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#e8a3b4" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b54362">渲染测试</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">12 场景参数化</text>
+          </g>
+          <g transform="translate(640, 250)">
+            <rect x="0" y="0" width="100" height="50" rx="5" fill="#fff" stroke="#e8a3b4" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#b54362">输出校验</text>
+            <text x="50" y="38" text-anchor="middle" font-size="10" fill="#6b7c95">尺寸/透明/清单</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="prose">
+      <p>项目采用三层质量防线，确保渲染结果可靠、可复现、可追踪。</p>
+      <p><strong>第一层：像素级校验。</strong><span class="mono">validate_png()</span> 函数在每次渲染完成后立即执行。它用 NumPy 直接读取 PNG 的 RGBA 数组，统计三个关键指标：透明像素占比（确保背景透明而非意外填白）、可见像素数量（确保有实际内容而非空白图）、彩色像素数量（确保数据有色差而非单色灰度）。任一指标不达标就抛出 ValueError，渲染即告失败。这是最基础也最迅速的质量闸门。</p>
+      <p><strong>第二层：元数据清单。</strong>每张 PNG 旁边都有一个同名 JSON 文件，记录了场景名称、标题、请求行数、渲染耗时、像素统计、背景类型与数据来源。这份清单不仅是文档——它还是自动化质量追踪的数据源，可用于跨版本比对渲染性能退化或像素分布异常。</p>
+      <p><strong>第三层：pytest 测试套件。</strong>测试文件包含两类测试：广度测试检查 DEMOS 注册表中至少有 12 个场景且副标题有足够多样性，防止新增场景时意外删除或重复；渲染测试对全部 12 个场景做参数化遍历，每个场景用 2.8 万行小数据量快速渲染，验证输出尺寸正确、透明像素充足、JSON 清单存在。这层测试在 CI 中运行，确保代码变更不会破坏任何场景。</p>
+      <p>三层防线各司其职：像素校验在运行时守护单张图像的质量，元数据清单提供可审计的历史记录，pytest 则在代码变更时做全场景回归检查。</p>
+    </div>
+  </section>
+
+  <!-- 6. 主走查 -->
+  <section id="walkthrough">
+    <h2>主走查：点密度渲染</h2>
+    <p class="section-sub">从命令行回车到 PNG 落地的五步全流程</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">图 5 · 主走查：point-density 端到端渲染流程</div>
+      <svg class="diagram" viewBox="0 0 880 420" width="880" height="420" role="img" aria-label="主走查流程图">
+        <defs>
+          <marker id="arroww" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#b54362"/>
+          </marker>
+        </defs>
+
+        <!-- Step 1 -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="0">
+          <rect x="40" y="40" width="180" height="70" rx="10" fill="#fef2f4" stroke="#b54362" stroke-width="1.5"/>
+          <text x="130" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">① CLI 接收命令</text>
+          <text x="130" y="86" text-anchor="middle" font-size="11" fill="#6b7c95">datashader-demos render</text>
+          <text x="130" y="102" text-anchor="middle" font-size="11" fill="#6b7c95">point-density</text>
+        </g>
+
+        <!-- Step 2 -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="1">
+          <rect x="260" y="40" width="180" height="70" rx="10" fill="#fffbeb" stroke="#e9c46a" stroke-width="1.5"/>
+          <text x="350" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">② 生成 200 万点</text>
+          <text x="350" y="86" text-anchor="middle" font-size="11" fill="#6b7c95">NumPy seed=42</text>
+          <text x="350" y="102" text-anchor="middle" font-size="11" fill="#6b7c95">5 组高斯分布 + 正弦调制</text>
+        </g>
+
+        <!-- Step 3 -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="2">
+          <rect x="480" y="40" width="180" height="70" rx="10" fill="#e6f4f5" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="570" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">③ Datashader 聚合</text>
+          <text x="570" y="86" text-anchor="middle" font-size="11" fill="#6b7c95">Canvas 1420×760</text>
+          <text x="570" y="102" text-anchor="middle" font-size="11" fill="#6b7c95">points / count / eq_hist</text>
+        </g>
+
+        <!-- Step 4 -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="3">
+          <rect x="700" y="40" width="140" height="70" rx="10" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="770" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">④ 装饰与保存</text>
+          <text x="770" y="86" text-anchor="middle" font-size="11" fill="#6b7c95">Pillow 绘标题图例</text>
+          <text x="770" y="102" text-anchor="middle" font-size="11" fill="#6b7c95">PNG + JSON 落地</text>
+        </g>
+
+        <!-- Step 5 -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="4">
+          <rect x="340" y="200" width="200" height="70" rx="10" fill="#e6f4f5" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="440" y="226" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a44">⑤ 像素级校验</text>
+          <text x="440" y="246" text-anchor="middle" font-size="11" fill="#6b7c95">validate_png() 检查</text>
+          <text x="440" y="262" text-anchor="middle" font-size="11" fill="#6b7c95">三项指标全部通过</text>
+        </g>
+
+        <!-- Outputs -->
+        <g class="diag-group" data-diag="walkthrough" data-idx="5">
+          <rect x="140" y="340" width="160" height="50" rx="8" fill="#fff" stroke="#b54362" stroke-width="1.5"/>
+          <text x="220" y="362" text-anchor="middle" font-size="12" font-weight="600" fill="#b54362">point-density-transparent.png</text>
+          <text x="220" y="378" text-anchor="middle" font-size="10" fill="#6b7c95">1600×1000 · 透明背景</text>
+
+          <rect x="360" y="340" width="160" height="50" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="440" y="362" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">point-density-transparent.json</text>
+          <text x="440" y="378" text-anchor="middle" font-size="10" fill="#6b7c95">元数据清单</text>
+
+          <rect x="580" y="340" width="160" height="50" rx="8" fill="#fff" stroke="#2a9d8f" stroke-width="1.5"/>
+          <text x="660" y="362" text-anchor="middle" font-size="12" font-weight="600" fill="#2a9d8f">PixelStats 结果</text>
+          <text x="660" y="378" text-anchor="middle" font-size="10" fill="#6b7c95">stdout 打印摘要</text>
+        </g>
+
+        <!-- Arrows -->
+        <g class="diag-flow" data-diag="walkthrough" data-idx="6">
+          <line x1="220" y1="75" x2="260" y2="75" stroke="#b54362" stroke-width="1.5" marker-end="url(#arroww)"/>
+          <line x1="440" y1="75" x2="480" y2="75" stroke="#b54362" stroke-width="1.5" marker-end="url(#arroww)"/>
+          <line x1="660" y1="75" x2="700" y2="75" stroke="#b54362" stroke-width="1.5" marker-end="url(#arroww)"/>
+          <!-- down to step 5 -->
+          <path d="M 770 110 L 770 160 Q 770 180 750 180 L 540 180 Q 440 180 440 200" fill="none" stroke="#b54362" stroke-width="1.5" marker-end="url(#arroww)"/>
+          <!-- down to outputs -->
+          <line x1="380" y1="270" x2="300" y2="340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+          <line x1="440" y1="270" x2="440" y2="340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+          <line x1="500" y1="270" x2="580" y2="340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="walkthrough-steps">
+      <div class="walkthrough-step">
+        <div class="step-num">1</div>
+        <h4>CLI 解析与调度</h4>
+        <p>用户执行 <span class="mono">datashader-demos render point-density</span>。argparse 识别出 <span class="mono">render</span> 子命令和场景名 <span class="mono">point-density</span>，校验场景名存在于 DEMOS 注册表后，调用 <span class="mono">render_demo("point-density", Path("out"))</span>。</p>
+      </div>
+      <div class="walkthrough-step">
+        <div class="step-num">2</div>
+        <h4>确定性数据生成</h4>
+        <p>进入 <span class="mono">_point_density()</span> 函数。使用种子为 42 的 NumPy 随机数生成器，创建 200 万个点——5 组不同中心和尺度的二维高斯分布，再叠加正弦调制使分布形态更自然。最终封装为带 x、y 两列的 Pandas DataFrame。</p>
+      </div>
+      <div class="walkthrough-step">
+        <div class="step-num">3</div>
+        <h4>栅格聚合与着色</h4>
+        <p>创建 1420×760 的 Datashader Canvas，坐标范围 x∈[-7.5, 7.5]、y∈[-5.2, 5.2]。调用 <span class="mono">canvas.points(frame, "x", "y", agg=ds.count())</span> 做栅格计数，得到二维聚合数组。再用 <span class="mono">tf.shade()</span> 以等直方图（eq_hist）方式映射到六色色带，<span class="min">min_alpha=25</span> 确保稀疏区域仍可见，最后 <span class="mono">dynspread</span> 让高密度点适度扩散。</p>
+      </div>
+      <div class="walkthrough-step">
+        <div class="step-num">4</div>
+        <h4>装饰合成与文件输出</h4>
+        <p>着色后的栅格被贴到 1600×1000 的透明画布上（偏移 90, 170）。Pillow 在顶部绘制品牌标签、标题、副标题、行数标注，在底部绘制四色色例与数据来源说明。最终以 optimize=True 保存为 PNG，同时写入包含渲染耗时和像素统计的 JSON 清单。</p>
+      </div>
+      <div class="walkthrough-step">
+        <div class="step-num">5</div>
+        <h4>像素校验与结果反馈</h4>
+        <p><span class="mono">validate_png()</span> 读取刚保存的 PNG，用 NumPy 计算透明像素占比、可见像素数、彩色像素数。三项全部通过后，CLI 打印一行摘要（文件名、尺寸、透明像素数），整个渲染流程结束。</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>datashader-demos · 架构文档 · Python + Datashader + NumPy + Pandas + Pillow</p>
+    <p style="margin-top:4px">文档生成于 2026-08 · 项目路径：~/projects/plot/datashader-demos</p>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // Degradation: if JS fails to execute, CSS already shows everything (opacity: 1 default).
+  // We set initial state to hidden only if JS runs successfully, then animate in.
+
+  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Gather all diagram groups
+  var groups = document.querySelectorAll(".diag-group");
+  var flows = document.querySelectorAll(".diag-flow");
+
+  if (reducedMotion) {
+    // Don't touch anything — CSS already handles the static state.
+    return;
+  }
+
+  // Set initial hidden state for groups that will animate
+  groups.forEach(function(g) {
+    g.style.opacity = "0";
+    g.style.transform = "translateY(12px)";
+    g.style.transition = "opacity 0.55s ease, transform 0.55s ease";
+  });
+
+  // Animate flow paths with stroke-dashoffset
+  flows.forEach(function(f) {
+    var len = f.getTotalLength ? f.getTotalLength() : 500;
+    f.style.strokeDasharray = len + " " + len;
+    f.style.strokeDashoffset = len;
+    f.style.transition = "stroke-dashoffset 0.8s ease-out";
+  });
+
+  // Use IntersectionObserver to trigger animations per diagram
+  var diagrams = document.querySelectorAll(".diagram-wrap");
+
+  function animateDiagram(wrap) {
+    var svg = wrap.querySelector("svg.diagram");
+    if (!svg) return;
+
+    // Find diagram key from first group inside
+    var firstGroup = svg.querySelector(".diag-group");
+    if (!firstGroup) return;
+
+    var diagKey = firstGroup.getAttribute("data-diag");
+    var diagGroups = svg.querySelectorAll('.diag-group[data-diag="' + diagKey + '"]');
+    var diagFlows = svg.querySelectorAll('.diag-flow[data-diag="' + diagKey + '"]');
+
+    var delay = 0;
+    var step = 180; // ms between steps
+
+    // Sort groups by data-idx
+    var sortedGroups = Array.prototype.slice.call(diagGroups).sort(function(a, b) {
+      return parseInt(a.getAttribute("data-idx"), 10) - parseInt(b.getAttribute("data-idx"), 10);
+    });
+
+    sortedGroups.forEach(function(g, i) {
+      setTimeout(function() {
+        g.style.opacity = "1";
+        g.style.transform = "translateY(0)";
+      }, delay + i * step);
+    });
+
+    // Flows come after all groups
+    var groupTotal = delay + sortedGroups.length * step;
+    diagFlows.forEach(function(f, i) {
+      setTimeout(function() {
+        f.style.strokeDashoffset = "0";
+      }, groupTotal + i * 100);
+    });
+  }
+
+  if ("IntersectionObserver" in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          animateDiagram(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    diagrams.forEach(function(d) { observer.observe(d); });
+  } else {
+    // No IO — show everything immediately
+    groups.forEach(function(g) {
+      g.style.opacity = "1";
+      g.style.transform = "translateY(0)";
+    });
+    flows.forEach(function(f) {
+      f.style.strokeDashoffset = "0";
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

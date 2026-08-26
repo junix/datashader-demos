@@ -1,0 +1,68 @@
+{
+  "id": "datashader-demos-architecture-infographic",
+  "title": "datashader-demos 架构信息图",
+  "project": "datashader-demos",
+  "project_path": "~/projects/plot/datashader-demos",
+  "language": "zh-CN",
+  "thesis": "datashader-demos 用 12 个确定性合成场景，展示 Datashader 如何将百万级行数据聚合成透明 PNG 栅格图，覆盖点、轨迹、分类、分形、事件、不确定性、网络、地形、路线和异常值等问题。",
+  "audience": "数据可视化工程师、科研人员、大规模数据渲染方案开发者",
+  "backend": "tikz-xelatex",
+  "engine": "xelatex",
+  "engine_version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023)",
+  "dpi": 220,
+  "source_file": "architecture-infographic.tex",
+  "outputs": {
+    "pdf": {
+      "file": "architecture-infographic.pdf",
+      "bytes": 111513
+    },
+    "png": {
+      "file": "architecture-infographic.png",
+      "bytes": 561188,
+      "width_px": 1703,
+      "height_px": 2516,
+      "width_to_height": 0.6769
+    },
+    "svg": {
+      "file": "architecture-infographic.svg",
+      "bytes": 889029
+    }
+  },
+  "sections": [
+    {
+      "id": "header",
+      "title": "标题与关键指标",
+      "content": "项目定位 + 4 项核心指标（12场景 / 1600×1000输出 / ~2M行数 / 100%验证）"
+    },
+    {
+      "id": "pipeline",
+      "title": "核心管线",
+      "content": "五步流水线：合成数据 → 栅格聚合 → 传递函数 → 排版装饰 → 透明输出"
+    },
+    {
+      "id": "scenarios",
+      "title": "十二场景",
+      "content": "按问题家族分组的 12 个场景，覆盖 10 类可视化问题"
+    },
+    {
+      "id": "validation",
+      "title": "验证闭环",
+      "content": "像素级三门闸：透明像素>25%、可见像素≥15000、彩色像素≥5000"
+    },
+    {
+      "id": "techstack",
+      "title": "技术栈",
+      "content": "datashader / numpy / pandas / pillow / hatchling / pytest"
+    }
+  ],
+  "verified_gates": {
+    "warnings": true,
+    "geometry_pass": true,
+    "identity_match": true,
+    "overlap_count": 0,
+    "tiny_text_count": 0,
+    "composition_pass": true
+  },
+  "build_command": "python3 ~/.claude/skills/create-infographic/scripts/render_tikz.py docs/architecture-infographic.tex --out-dir /tmp/out --engine xelatex --dpi 220 --svg --strict-warnings --strict-geometry --strict-composition --expect-text datashader",
+  "source_sha256": "e6f9b268c9f9e570b1317f8419e17d844b5876a98f5fd95e3092f8140c726f25"
+}

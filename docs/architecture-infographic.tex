@@ -1,0 +1,372 @@
+\documentclass[border=12pt,varwidth=19cm]{standalone}
+% datashader-demos 架构信息图
+% 叙事：数据 → 栅格聚合 → 着色传递 → 装饰 → 透明 PNG 输出 + 验证闭环
+% 12 个生产级场景，覆盖点 / 轨迹 / 分类 / 分形 / 事件 / 不确定性 /
+% 网络 / 地形 / 路线 / 异常值 等 10 类问题。
+\usepackage[UTF8,fontset=none]{ctex}
+\IfFontExistsTF{Source Han Serif SC}{
+  \setmainfont[BoldFont={Source Han Serif SC Bold}]{Source Han Serif SC}
+  \setsansfont[BoldFont={Source Han Serif SC Bold}]{Source Han Serif SC}
+  \setCJKmainfont[BoldFont={Source Han Serif SC Bold}]{Source Han Serif SC}
+  \setCJKsansfont[BoldFont={Source Han Serif SC Bold}]{Source Han Serif SC}
+}{
+  \PackageWarningNoLine{tikz-infographic}{Source Han Serif SC not found; using Fandol}
+  \setCJKmainfont[BoldFont={FandolSong-Bold}]{FandolSong-Regular}
+  \setCJKsansfont[BoldFont={FandolHei-Bold}]{FandolHei-Regular}
+}
+\IfFontExistsTF{Sarasa Mono SC}{
+  \setmonofont{Sarasa Mono SC}
+  \setCJKmonofont{Sarasa Mono SC}
+}{
+  \PackageWarningNoLine{tikz-infographic}{Sarasa Mono SC not found; using TeX defaults}
+  \setmonofont{Latin Modern Mono}
+  \setCJKmonofont{FandolFang-Regular}
+}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{listings}
+\usetikzlibrary{arrows.meta,backgrounds,calc,fit,positioning,shapes.geometric}
+\pgfdeclarelayer{edge layer}
+\pgfsetlayers{background,edge layer,main}
+
+% ── Semantic palette ──────────────────────────────────────────────────────
+\definecolor{Paper}{HTML}{F7F4EE}
+\definecolor{Ink}{HTML}{17212B}
+\definecolor{Slate}{HTML}{5D6873}
+\definecolor{Fog}{HTML}{D9E1E3}
+\definecolor{Ocean}{HTML}{2E5A7A}
+\definecolor{Teal}{HTML}{2A9D8F}
+\definecolor{Mint}{HTML}{DDF2EC}
+\definecolor{Coral}{HTML}{E76F51}
+\definecolor{Gold}{HTML}{E9C46A}
+\definecolor{Rose}{HTML}{B5344E}
+\definecolor{Indigo}{HTML}{4C5B9C}
+
+\lstdefinestyle{paper-code}{
+  basicstyle=\ttfamily\scriptsize\color{Ink},
+  keywordstyle=\bfseries\color{Ocean},
+  commentstyle=\itshape\color{Teal!75!black},
+  stringstyle=\color{Coral},
+  numberstyle=\scriptsize\color{Slate},
+  numbers=left,
+  numbersep=7pt,
+  frame=single,
+  rulecolor=\color{Fog},
+  backgroundcolor=\color{white},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2,
+  xleftmargin=8pt,
+  framexleftmargin=6pt,
+  aboveskip=5pt,
+  belowskip=0pt
+}
+
+\tikzset{
+  every node/.style={font=\rmfamily},
+  % ── Pipeline ribbon: the visual protagonist ──
+  spine/.style={draw=Fog, line width=7mm, line cap=butt, line join=round},
+  stage/.style={
+    circle, draw=Ocean, fill=Ocean, text=white, inner sep=0pt,
+    minimum size=9mm, font=\rmfamily\scriptsize\bfseries
+  },
+  stage label/.style={font=\rmfamily\footnotesize\bfseries, text=Ink},
+  stage sub/.style={font=\rmfamily\scriptsize, text=Slate},
+  % ── Edges ──
+  call/.style={
+    -{Latex[length=2.2mm,width=1.6mm]}, draw=Ocean,
+    line width=1pt, rounded corners=2mm
+  },
+  reply/.style={
+    -{Latex[length=2.2mm,width=1.6mm]}, draw=Teal,
+    densely dashed, line width=.9pt, rounded corners=2mm
+  },
+  dataflow/.style={
+    -{Stealth[length=2mm,width=1.8mm]}, draw=Ocean!65,
+    line width=1.1pt, rounded corners=1.5mm
+  },
+  verify/.style={
+    -{Latex[length=2mm,width=1.5mm]}, draw=Coral,
+    line width=.9pt, densely dotted, rounded corners=2mm
+  },
+  boundary/.style={draw=Slate!40, dash pattern=on 2pt off 2.4pt, line width=.6pt},
+  % ── Component / module styles ──
+  module/.style={
+    draw=Ocean!40, fill=white, rounded corners=2mm, line width=.75pt,
+    minimum width=28mm, minimum height=11mm, align=center,
+    font=\rmfamily\footnotesize\bfseries, text=Ink, inner sep=4pt
+  },
+  module sub/.style={font=\rmfamily\scriptsize, text=Slate, align=center},
+  % ── Scenario chips ──
+  chip/.style={
+    rounded corners=2mm, fill=Mint, text=Ocean,
+    inner xsep=2.4mm, inner ysep=1.4mm,
+    font=\rmfamily\scriptsize\bfseries, align=center
+  },
+  chip-alt/.style={
+    rounded corners=2mm, fill=Indigo!12, text=Indigo,
+    inner xsep=2.4mm, inner ysep=1.4mm,
+    font=\rmfamily\scriptsize\bfseries, align=center
+  },
+  chip-warm/.style={
+    rounded corners=2mm, fill=Gold!25, text=Coral!80!black,
+    inner xsep=2.4mm, inner ysep=1.4mm,
+    font=\rmfamily\scriptsize\bfseries, align=center
+  },
+  % ── Text helpers ──
+  edge label/.style={font=\rmfamily\scriptsize, text=Slate},
+  terminal/.style={font=\rmfamily\scriptsize\bfseries, text=Ocean},
+  note/.style={font=\rmfamily\scriptsize, text=Slate},
+  kicker/.style={font=\rmfamily\scriptsize\bfseries, text=Teal},
+  pill/.style={
+    rounded corners=3mm, fill=Mint, text=Ocean,
+    inner xsep=2.8mm, inner ysep=1.2mm,
+    font=\rmfamily\scriptsize\bfseries
+  },
+  section-title/.style={font=\rmfamily\large\bfseries, text=Ink},
+  section-sub/.style={font=\rmfamily\scriptsize, text=Slate},
+  metric-num/.style={font=\rmfamily\Large\bfseries, text=Ocean},
+  metric-label/.style={font=\rmfamily\scriptsize, text=Slate},
+  backed label/.style={edge label, fill=Paper, inner sep=1.5pt}
+}
+
+\begin{document}
+\setlength{\parindent}{0pt}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % ── Paper canvas ────────────────────────────────────────────────────────
+  \begin{pgfonlayer}{background}
+    \fill[Paper,rounded corners=2mm] (-.6,0.4) rectangle (17.9,28.6);
+  \end{pgfonlayer}
+
+  % =======================================================================
+  % SECTION 1 — HEADER / HERO
+  % =======================================================================
+  \node[kicker,anchor=west] at (0,28.05) {DATASHADER-DEMOS · 栅格聚合可视化};
+  \node[section-title,anchor=west] at (0,27.25)
+    {百万级数据如何一张图讲清};
+  \node[section-sub,anchor=west] at (0,26.65)
+    {12 个生产级透明 PNG 渲染器 · 确定性合成数据 · 全自动像素级验证};
+  \node[pill,anchor=east] at (17.7,27.25) {读法：自上而下 · 先看主带再看分块};
+
+  % Hero metrics row
+  \node[metric-num,anchor=west] at (0.3,25.65) {12};
+  \node[metric-label,anchor=west] at (1.6,25.80) {个场景};
+  \node[metric-label,anchor=west] at (1.6,25.30) {覆盖 10 类问题};
+
+  \node[metric-num,anchor=west] at (5.0,25.65) {1600×1000};
+  \node[metric-label,anchor=west] at (9.0,25.80) {输出尺寸};
+  \node[metric-label,anchor=west] at (9.0,25.30) {透明背景 PNG};
+
+  \node[metric-num,anchor=west] at (11.3,25.65) {~2M};
+  \node[metric-label,anchor=west] at (12.8,25.80) {默认行数};
+  \node[metric-label,anchor=west] at (12.8,25.30) {单场景最大};
+
+  \node[metric-num,anchor=west] at (15.3,25.65) {100\%};
+  \node[metric-label,anchor=west] at (16.6,25.80) {验证覆盖};
+  \node[metric-label,anchor=west] at (16.6,25.30) {像素级闸门};
+
+  % Divider
+  \draw[boundary] (0,24.7) -- (17.7,24.7);
+
+  % =======================================================================
+  % SECTION 2 — PIPELINE / CORE ARCHITECTURE
+  % =======================================================================
+  \node[kicker,anchor=west] at (0,24.20) {§1 核心管线};
+  \node[section-title,anchor=west,font=\rmfamily\normalsize\bfseries] at (0,23.60)
+    {从随机数种子到透明像素的五步流水线};
+
+  % Pipeline spine (vertical-ish, reading left to right)
+  \node[stage] (p1) at (1.8,21.90) {01};
+  \node[stage] (p2) at (5.3,21.90) {02};
+  \node[stage] (p3) at (8.8,21.90) {03};
+  \node[stage] (p4) at (12.3,21.90) {04};
+  \node[stage] (p5) at (15.8,21.90) {05};
+
+  \begin{pgfonlayer}{edge layer}
+    \draw[spine] (p1) -- (p2);
+    \draw[spine] (p2) -- (p3);
+    \draw[spine] (p3) -- (p4);
+    \draw[spine] (p4) -- (p5);
+  \end{pgfonlayer}
+
+  % Stage labels above
+  \node[stage label,anchor=south] at (1.8,22.60) {合成数据};
+  \node[stage sub,anchor=north,align=center,text width=24mm] at (1.8,21.20)
+    {确定性种子\\NumPy / Pandas};
+
+  \node[stage label,anchor=south] at (5.3,22.60) {栅格聚合};
+  \node[stage sub,anchor=north,align=center,text width=24mm] at (5.3,21.20)
+    {Canvas 分箱\\count / mean / count\_cat};
+
+  \node[stage label,anchor=south] at (8.8,22.60) {传递函数};
+  \node[stage sub,anchor=north,align=center,text width=24mm] at (8.8,21.20)
+    {shade 着色\\eq\_hist / dynspread};
+
+  \node[stage label,anchor=south] at (12.3,22.60) {排版装饰};
+  \node[stage sub,anchor=north,align=center,text width=24mm] at (12.3,21.20)
+    {标题 / 图例\\PIL 合成};
+
+  \node[stage label,anchor=south] at (15.8,22.60) {透明输出};
+  \node[stage sub,anchor=north,align=center,text width=24mm] at (15.8,21.20)
+    {RGBA PNG\\JSON 清单};
+
+  % Terminal labels
+  \node[terminal,anchor=east] at (1.0,21.90) {种子};
+  \node[terminal,anchor=west] at (16.6,21.90) {PNG + JSON};
+
+  % Input/output icons: data source
+  \node[note,anchor=west,text width=170mm] at (0,19.90)
+    {\textbf{关键特性}：所有数据集使用固定随机种子（42 / 84 / 420 / 73 / 99），每次渲染逐像素可复现。};
+
+  \node[note,anchor=west,text width=170mm] at (0,19.30)
+    {\textbf{聚合算子}：\texttt{count}（计数密度）· \texttt{mean}（均值标量）· \texttt{count\_cat}（分类计数）三大类。};
+
+  % Divider
+  \draw[boundary] (0,19.10) -- (17.7,19.10);
+
+  % =======================================================================
+  % SECTION 3 — TWELVE SCENARIOS, GROUPED
+  % =======================================================================
+  \node[kicker,anchor=west] at (0,18.60) {§2 十二场景};
+  \node[section-title,anchor=west,font=\rmfamily\normalsize\bfseries] at (0,18.00)
+    {按问题家族分组 · 每个场景回答一个具体问题};
+
+  % Row 1: Point aggregation family
+  \node[chip,anchor=west] at (0.2,17.10) {点密度};
+  \node[chip-alt,anchor=west] at (2.8,17.10) {point-density};
+  \node[note,anchor=west,text width=55mm] at (6.0,17.10)
+    {五种重叠分布在哪聚集？};
+
+  \node[chip,anchor=west] at (11.6,17.10) {分类混合};
+  \node[chip-alt,anchor=west] at (14.0,17.10) {category-mix};
+  \node[note,anchor=west,text width=35mm] at (0,16.55)
+    {四类人群在哪主导、哪交汇？};
+
+  % Row 2: Trajectory / dynamical
+  \node[chip,anchor=west] at (0.2,15.85) {轨迹束};
+  \node[chip-alt,anchor=west] at (2.8,15.85) {trajectory-bundle};
+  \node[note,anchor=west,text width=55mm] at (6.0,15.85)
+    {数千条路径如何汇成走廊？};
+
+  \node[chip,anchor=west] at (11.6,15.85) {相空间};
+  \node[chip-alt,anchor=west] at (14.0,15.85) {phase-portrait};
+  \node[note,anchor=west,text width=35mm] at (0,15.30)
+    {阻尼轨迹收敛到哪？};
+
+  % Row 3: Iterative / parameter
+  \node[chip,anchor=west] at (0.2,14.60) {分形流域};
+  \node[chip-alt,anchor=west] at (2.8,14.60) {fractal-basin};
+  \node[note,anchor=west,text width=55mm] at (6.0,14.60)
+    {牛顿迭代每个起点收敛到哪个根？};
+
+  \node[chip,anchor=west] at (11.6,14.60) {参数扫描};
+  \node[chip-alt,anchor=west] at (14.0,14.60) {parameter-sweep};
+  \node[note,anchor=west,text width=35mm] at (0,14.05)
+    {Logistic 映射在哪分岔入混沌？};
+
+  % Row 4: Events / uncertainty
+  \node[chip,anchor=west] at (0.2,13.35) {事件光栅};
+  \node[chip-alt,anchor=west] at (2.8,13.35) {event-raster};
+  \node[note,anchor=west,text width=55mm] at (6.0,13.35)
+    {百万服务事件何时何处爆发？};
+
+  \node[chip,anchor=west] at (11.6,13.35) {不确定性扇};
+  \node[chip-alt,anchor=west] at (14.0,13.35) {uncertainty-fan};
+  \node[note,anchor=west,text width=35mm] at (0,12.80)
+    {集合预测不确定性如何扩散？};
+
+  % Row 5: Network / terrain
+  \node[chip,anchor=west] at (0.2,12.10) {网络密度};
+  \node[chip-alt,anchor=west] at (2.8,12.10) {network-density};
+  \node[note,anchor=west,text width=55mm] at (6.0,12.10)
+    {万条连线哪形成共享走廊？};
+
+  \node[chip,anchor=west] at (11.6,12.10) {地形扫描};
+  \node[chip-alt,anchor=west] at (14.0,12.10) {terrain-scan};
+  \node[note,anchor=west,text width=35mm] at (0,11.55)
+    {离散高程采样如何成面？};
+
+  % Row 6: Routes / outliers
+  \node[chip,anchor=west] at (0.2,10.85) {地理路线};
+  \node[chip-alt,anchor=west] at (2.8,10.85) {geo-routes};
+  \node[note,anchor=west,text width=55mm] at (6.0,10.85)
+    {起终点对在哪汇聚成网关？};
+
+  \node[chip,anchor=west] at (11.6,10.85) {稀有异常};
+  \node[chip-alt,anchor=west] at (14.0,10.85) {rare-outliers};
+  \node[note,anchor=west,text width=35mm] at (0,10.30)
+    {罕见离群点能否在密集云中保留？};
+
+  % Family summary chip
+  \node[chip-warm,anchor=west] at (14.6,10.30) {12 / 10 家族};
+
+  % Divider
+  \draw[boundary] (0,9.65) -- (17.7,9.65);
+
+  % =======================================================================
+  % SECTION 4 — VALIDATION LOOP
+  % =======================================================================
+  \node[kicker,anchor=west] at (0,9.15) {§3 验证闭环};
+  \node[section-title,anchor=west,font=\rmfamily\normalsize\bfseries] at (0,8.55)
+    {像素级闸门 · 不是"看起来对"，是算出来对};
+
+  % Validation flow: render → validate → pass/fail
+  \node[module] (render) at (2.8,7.40) {render\_demo};
+  \node[module sub,anchor=north] at (2.8,6.90) {生成 PNG + JSON};
+
+  \node[module] (validate) at (8.8,7.40) {validate\_png};
+  \node[module sub,anchor=north] at (8.8,6.90) {PixelStats 三门闸};
+
+  \node[module] (tests) at (14.8,7.40) {pytest};
+  \node[module sub,anchor=north] at (14.8,6.90) {12 参数化用例};
+
+  \begin{pgfonlayer}{edge layer}
+    \draw[dataflow] (render.east) -- (validate.west);
+    \draw[dataflow] (validate.east) -- (tests.west);
+  \end{pgfonlayer}
+
+  \node[edge label,anchor=south] at (5.8,7.55) {PNG 路径};
+  \node[edge label,anchor=south] at (11.8,7.55) {stats 对象};
+
+  % Validation gates (below validate module)
+  \node[note,anchor=west] at (6.2,5.95) {闸门 ①：透明像素 > 25\% 面积};
+  \node[note,anchor=west] at (6.2,5.45) {闸门 ②：可见像素 ≥ 15 000};
+  \node[note,anchor=west] at (6.2,4.95) {闸门 ③：彩色像素 ≥ 5 000};
+
+  \node[chip-warm,anchor=west] at (13.5,5.45) {全部通过才写入清单};
+
+  % Manifest output
+  \node[note,anchor=west] at (0,4.10)
+    {\textbf{输出清单}：每个 PNG 伴随同名 JSON，记录 demo 名称、行数、渲染耗时、尺寸、像素统计与背景属性。};
+
+  % Divider
+  \draw[boundary] (0,3.40) -- (17.7,3.40);
+
+  % =======================================================================
+  % SECTION 5 — TECH STACK / DEPENDENCIES
+  % =======================================================================
+  \node[kicker,anchor=west] at (0,2.90) {§4 技术栈};
+  \node[section-title,anchor=west,font=\rmfamily\normalsize\bfseries] at (0,2.30)
+    {轻量依赖 · 纯 Python · uv 管理};
+
+  % Dependency chips
+  \node[chip,anchor=west] at (0.2,1.40) {datashader 0.19};
+  \node[chip-alt,anchor=west] at (3.6,1.40) {numpy 2.x};
+  \node[chip,anchor=west] at (6.6,1.40) {pandas 2.x};
+  \node[chip-alt,anchor=west] at (9.6,1.40) {pillow 11};
+
+  \node[chip,anchor=west] at (12.3,1.40) {hatchling};
+  \node[chip-alt,anchor=west] at (14.8,1.40) {pytest / ruff};
+
+  % CLI entry
+  \node[note,anchor=west] at (0,0.70)
+    {\textbf{CLI}：\texttt{datashader-demos render | validate | list} · 可指定场景与行数覆盖默认值。};
+
+  % Footer note
+  \node[note,anchor=east] at (17.7,0.70)
+    {catalog.json 提供按用途 / 家族 / 复杂度检索};
+
+\end{tikzpicture}
+\end{document}
