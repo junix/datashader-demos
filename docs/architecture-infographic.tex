@@ -1,5 +1,6 @@
 \documentclass[border=12pt,varwidth=19cm]{standalone}
 % datashader-demos 架构信息图
+% Render: python3 ~/.agents/skills/create-infographic/scripts/render_tikz.py docs/architecture-infographic.tex --workdir . --out-dir docs --engine xelatex --dpi 300 --svg --strict-warnings --strict-geometry --strict-composition --strict-svg --min-labelled-connectors 0.6 --expect-text "datashader-demos"
 % 叙事：数据 → 栅格聚合 → 着色传递 → 装饰 → 透明 PNG 输出 + 验证闭环
 % 12 个生产级场景，覆盖点 / 轨迹 / 分类 / 分形 / 事件 / 不确定性 /
 % 网络 / 地形 / 路线 / 异常值 等 10 类问题。
@@ -67,7 +68,9 @@
 \tikzset{
   every node/.style={font=\rmfamily},
   % ── Pipeline ribbon: the visual protagonist ──
-  spine/.style={draw=Fog, line width=7mm, line cap=butt, line join=round},
+  % shorten: 段端退出圆内数字文本的净空盒（墨盒比圆边界大约 1pt）
+  spine/.style={draw=Fog, line width=7mm, line cap=butt, line join=round,
+    shorten <=3pt, shorten >=3pt},
   stage/.style={
     circle, draw=Ocean, fill=Ocean, text=white, inner sep=0pt,
     minimum size=9mm, font=\rmfamily\scriptsize\bfseries
@@ -143,7 +146,9 @@
   % =======================================================================
   % SECTION 1 — HEADER / HERO
   % =======================================================================
-  \node[kicker,anchor=west] at (0,28.05) {DATASHADER-DEMOS · 栅格聚合可视化};
+  % \kern: 拆开 A-T / T-A 负 kern 字对的亚像素墨盒重叠（dvisvgm 导出陷阱）
+  \node[kicker,anchor=west] at (0,28.05)
+    {DA\kern0.8pt T\kern0.8pt ASHADER-DEMOS · 栅格聚合可视化};
   \node[section-title,anchor=west] at (0,27.25)
     {百万级数据如何一张图讲清};
   \node[section-sub,anchor=west] at (0,26.65)
@@ -163,7 +168,7 @@
   \node[metric-label,anchor=west] at (12.8,25.80) {默认行数};
   \node[metric-label,anchor=west] at (12.8,25.30) {单场景最大};
 
-  \node[metric-num,anchor=west] at (15.3,25.65) {100\%};
+  \node[metric-num,anchor=west] at (14.9,25.65) {100\%};
   \node[metric-label,anchor=west] at (16.6,25.80) {验证覆盖};
   \node[metric-label,anchor=west] at (16.6,25.30) {像素级闸门};
 

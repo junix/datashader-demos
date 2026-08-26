@@ -1,68 +1,235 @@
 {
-  "id": "datashader-demos-architecture-infographic",
-  "title": "datashader-demos 架构信息图",
-  "project": "datashader-demos",
-  "project_path": "~/projects/plot/datashader-demos",
-  "language": "zh-CN",
-  "thesis": "datashader-demos 用 12 个确定性合成场景，展示 Datashader 如何将百万级行数据聚合成透明 PNG 栅格图，覆盖点、轨迹、分类、分形、事件、不确定性、网络、地形、路线和异常值等问题。",
-  "audience": "数据可视化工程师、科研人员、大规模数据渲染方案开发者",
-  "backend": "tikz-xelatex",
+  "source": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.tex",
+  "workdir": "/Users/junix/projects/plot/datashader-demos",
+  "source_sha256": "7441d92e391601f7e8ae347a323560955d134fb0e225d18db51335ca61a96470",
   "engine": "xelatex",
   "engine_version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023)",
-  "dpi": 220,
-  "source_file": "architecture-infographic.tex",
-  "outputs": {
+  "dpi": 300,
+  "passes": 2,
+  "transparent_png": false,
+  "shell_escape": false,
+  "warnings": [],
+  "geometry": {
+    "pdf": "/var/folders/6q/xkny9rm10gqbzhz7qd0mjp5r0000gn/T/tikz-render-84_iuw6f/architecture-infographic.pdf",
+    "page_count": 1,
+    "expected_text": "datashader-demos",
+    "identity_match": true,
+    "thresholds": {
+      "min_text_pt": 6.5,
+      "min_width_occupancy": 0.45,
+      "min_height_occupancy": 0.3
+    },
+    "pages": [
+      {
+        "page": 1,
+        "width_pt": 557.15,
+        "height_pt": 823.28,
+        "line_count": 106,
+        "text_extent": {
+          "left": 32.662,
+          "top": 24.299,
+          "right": 541.712,
+          "bottom": 806.962
+        },
+        "width_occupancy": 0.9137,
+        "height_occupancy": 0.9507,
+        "overlap_count": 0,
+        "overlap_examples": [],
+        "tiny_text_count": 0,
+        "tiny_text_examples": []
+      }
+    ],
+    "issues": [],
+    "pass": true
+  },
+  "composition": {
+    "pdf": "/var/folders/6q/xkny9rm10gqbzhz7qd0mjp5r0000gn/T/tikz-render-84_iuw6f/architecture-infographic.pdf",
+    "page": {
+      "width_pt": 557.15,
+      "height_pt": 823.28
+    },
+    "counts": {
+      "blocks": 41,
+      "containers": 0,
+      "leaf_blocks": 41,
+      "connectors": 10,
+      "marks": 2,
+      "text_lines": 106,
+      "masked_labels": 0,
+      "ignored_text_regions": 0,
+      "ignored_text_blocks": 0,
+      "ignored_text_connectors": 0,
+      "ignored_presentation_fields": 0,
+      "ignored_label_backdrops": 0
+    },
+    "metrics": {
+      "connectors_per_leaf_block": 0.244,
+      "labelled_connector_ratio": 0.6,
+      "leaf_area_cv": 0.578,
+      "lattice_ratio": 0.659,
+      "container_depth": 1,
+      "min_clearance_pt": null
+    },
+    "raster": {
+      "available": true,
+      "png": "/var/folders/6q/xkny9rm10gqbzhz7qd0mjp5r0000gn/T/tikz-render-84_iuw6f/architecture-infographic.png",
+      "background_rgb": [
+        248,
+        248,
+        248
+      ],
+      "ink_density": 0.0692,
+      "cell_density_cv": 0.7391,
+      "quiet_cell_fraction": 0.25,
+      "cells": 36
+    },
+    "thresholds": {
+      "clearance_pt": 2.0,
+      "label_radius_pt": 12.0,
+      "text_padding_pt": 1.5,
+      "min_block_area_pt2": 120.0,
+      "max_block_area_ratio": 0.55,
+      "min_connector_length_pt": 8.0,
+      "min_labeled_connector_ratio": 0.6,
+      "grid_min_blocks": 6,
+      "grid_area_cv": 0.12,
+      "grid_lattice_ratio": 0.75,
+      "max_container_depth": 2,
+      "max_ink_density": 0.38,
+      "min_quiet_cell_fraction": 0.08,
+      "min_cell_density_cv": 0.35
+    },
+    "violations": [],
+    "issues": [],
+    "notes": [],
+    "pass": true
+  },
+  "svg_lint": {
+    "tool": "svg-linter 0.1.0",
+    "input_sha256": "f03c55daaefdfc5b1997c2a14a19a25fef980042d61d840941efd380967008da",
+    "catalog": {
+      "schema_version": "svg-linter.catalog/v1",
+      "catalog_version": "3",
+      "catalog_hash": "sha256:9079749fd5985a8f505c2a96c7d7dd90a990fb73f9f295c12620f63c338ac333"
+    },
+    "passes": {
+      "error_gate": {
+        "select": [
+          "svg/duplicate-id",
+          "svg/dangling-reference"
+        ],
+        "coverage": {
+          "evaluated": [
+            "svg/dangling-reference",
+            "svg/duplicate-id"
+          ],
+          "not_evaluated": {}
+        },
+        "counts": {},
+        "errors": 0,
+        "total": 0,
+        "viz": null
+      },
+      "hygiene_review": {
+        "select": [
+          "svg/excessive-path-complexity",
+          "svg/unused-definition",
+          "svg/external-resource",
+          "svg/raster-upscale",
+          "svg/open-filled-path"
+        ],
+        "coverage": {
+          "evaluated": [
+            "svg/excessive-path-complexity",
+            "svg/external-resource",
+            "svg/open-filled-path",
+            "svg/raster-upscale",
+            "svg/unused-definition"
+          ],
+          "not_evaluated": {}
+        },
+        "counts": {},
+        "errors": 0,
+        "total": 0,
+        "viz": null
+      },
+      "collision_review": {
+        "select": [
+          "svg/line-overlap",
+          "svg/line-crossing",
+          "svg/line-text-overlap",
+          "svg/text-text-overlap",
+          "svg/canvas-edge-clearance",
+          "svg/ambiguous-junction",
+          "svg/connector-through-shape",
+          "svg/edge-congestion",
+          "svg/filter-clipping-risk",
+          "svg/low-contrast-text"
+        ],
+        "coverage": {
+          "evaluated": [
+            "svg/ambiguous-junction",
+            "svg/canvas-edge-clearance",
+            "svg/connector-through-shape",
+            "svg/edge-congestion",
+            "svg/filter-clipping-risk",
+            "svg/line-crossing",
+            "svg/line-overlap",
+            "svg/line-text-overlap",
+            "svg/low-contrast-text",
+            "svg/text-text-overlap"
+          ],
+          "not_evaluated": {}
+        },
+        "counts": {},
+        "errors": 0,
+        "total": 0,
+        "viz": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.collision-review.png"
+      }
+    },
+    "path_font_quarantine": [
+      "svg/out-of-bounds",
+      "svg/path-self-crossing",
+      "svg/exact-duplicate-geometry",
+      "svg/outlined-text",
+      "svg/dangling-connector",
+      "svg/marker-overlap",
+      "svg/text-container-overflow",
+      "svg/text-edge-clearance",
+      "svg/shape-shape-overlap",
+      "svg/text-shape-overlap",
+      "svg/tiny-dogleg",
+      "svg/acute-connector-bend",
+      "svg/excessive-bends",
+      "svg/alignment-outlier",
+      "svg/spacing-outlier",
+      "svg/size-outlier",
+      "svg/container-padding-outlier",
+      "svg/font-style-outlier"
+    ],
+    "error_gate_clean": true,
+    "collision_findings": 0
+  },
+  "published_despite_strict_failure": false,
+  "artifacts": {
     "pdf": {
-      "file": "architecture-infographic.pdf",
-      "bytes": 111513
+      "path": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.pdf",
+      "bytes": 111524
     },
     "png": {
-      "file": "architecture-infographic.png",
-      "bytes": 561188,
-      "width_px": 1703,
-      "height_px": 2516,
-      "width_to_height": 0.6769
+      "path": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.png",
+      "bytes": 817413,
+      "width_px": 2322,
+      "height_px": 3431,
+      "width_to_height": 0.6768
     },
     "svg": {
-      "file": "architecture-infographic.svg",
-      "bytes": 889029
+      "path": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.svg",
+      "bytes": 889033
+    },
+    "svg_lint_viz": {
+      "path": "/Users/junix/projects/plot/datashader-demos/docs/architecture-infographic.collision-review.png",
+      "bytes": 130214
     }
-  },
-  "sections": [
-    {
-      "id": "header",
-      "title": "标题与关键指标",
-      "content": "项目定位 + 4 项核心指标（12场景 / 1600×1000输出 / ~2M行数 / 100%验证）"
-    },
-    {
-      "id": "pipeline",
-      "title": "核心管线",
-      "content": "五步流水线：合成数据 → 栅格聚合 → 传递函数 → 排版装饰 → 透明输出"
-    },
-    {
-      "id": "scenarios",
-      "title": "十二场景",
-      "content": "按问题家族分组的 12 个场景，覆盖 10 类可视化问题"
-    },
-    {
-      "id": "validation",
-      "title": "验证闭环",
-      "content": "像素级三门闸：透明像素>25%、可见像素≥15000、彩色像素≥5000"
-    },
-    {
-      "id": "techstack",
-      "title": "技术栈",
-      "content": "datashader / numpy / pandas / pillow / hatchling / pytest"
-    }
-  ],
-  "verified_gates": {
-    "warnings": true,
-    "geometry_pass": true,
-    "identity_match": true,
-    "overlap_count": 0,
-    "tiny_text_count": 0,
-    "composition_pass": true
-  },
-  "build_command": "python3 ~/.claude/skills/create-infographic/scripts/render_tikz.py docs/architecture-infographic.tex --out-dir /tmp/out --engine xelatex --dpi 220 --svg --strict-warnings --strict-geometry --strict-composition --expect-text datashader",
-  "source_sha256": "e6f9b268c9f9e570b1317f8419e17d844b5876a98f5fd95e3092f8140c726f25"
+  }
 }
