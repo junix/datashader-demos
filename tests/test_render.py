@@ -35,10 +35,24 @@ def test_demo_renders_transparent_png(name: str, tmp_path: Path) -> None:
     path = render_demo(name, tmp_path, rows=28_000)
     stats = validate_png(path)
     assert path == tmp_path / f"{name}-transparent.png"
+    with Image.open(path) as rendered:
+        assert rendered.format == "PNG"
+        assert rendered.mode == "RGBA"
     assert stats.width == 1600
     assert stats.height == 1000
     assert stats.transparent_pixels > 400_000
-    manifest = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+    raw_manifest = path.with_suffix(".json").read_text(encoding="utf-8")
+    manifest = json.loads(raw_manifest)
+    assert set(manifest) == {
+        "demo",
+        "title",
+        "requested_rows",
+        "render_seconds",
+        "artifact",
+        "pixel_stats",
+        "background",
+        "data",
+    }
     demo = DEMOS[name]
     assert manifest["demo"] == demo.name
     assert manifest["title"] == demo.title
@@ -47,6 +61,8 @@ def test_demo_renders_transparent_png(name: str, tmp_path: Path) -> None:
     assert manifest["background"] == "transparent"
     assert manifest["data"] == "deterministic synthetic fixture"
     assert manifest["pixel_stats"] == asdict(stats)
+    # manifest is written as json.dumps(..., indent=2) plus a trailing newline
+    assert raw_manifest == json.dumps(manifest, indent=2) + "\n"
     assert manifest["render_seconds"] >= 0.0
 
 
@@ -58,6 +74,13 @@ def test_render_demo_rejects_unknown_name(tmp_path: Path) -> None:
 
 def test_render_demo_uses_catalog_default_rows(tmp_path: Path) -> None:
     path = render_demo("phase-portrait", tmp_path, rows=None)
+    manifest = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+    assert manifest["requested_rows"] == DEMOS["phase-portrait"].default_rows
+
+
+def test_render_demo_treats_zero_rows_as_catalog_default(tmp_path: Path) -> None:
+    # rows=0 is falsy, so `rows or demo.default_rows` silently falls back to the default.
+    path = render_demo("phase-portrait", tmp_path, rows=0)
     manifest = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
     assert manifest["requested_rows"] == DEMOS["phase-portrait"].default_rows
 
@@ -83,6 +106,36 @@ def test_validate_png_counts_alpha_bands_and_color_channels(tmp_path: Path) -> N
         visible_pixels=24_000,
         colorful_pixels=12_000,
     )
+
+
+def test_validate_png_pins_every_threshold_exactly(tmp_path: Path) -> None:
+    rgba = np.zeros((200, 200, 4), dtype=np.uint8)
+    rgba[:, 0:50] = (200, 10, 10, 7)  # alpha 7 < 8: transparent even with vivid rgb
+    rgba[:, 50:75] = (200, 10, 10, 8)  # alpha 8: first dead-band value, not transparent
+    rgba[:, 75:100] = (200, 10, 10, 16)  # mid dead band: neither transparent nor visible
+    rgba[:, 100:125] = (200, 10, 10, 24)  # alpha 24: last dead-band value, not visible
+    rgba[:, 125:150] = (100, 100, 100, 25)  # alpha 25: first visible; chroma 0, not colorful
+    rgba[:, 150:162] = (200, 10, 10, 64)  # alpha 64: visible but not > 64, so not colorful
+    rgba[:, 162:175] = (0, 0, 28, 65)  # chroma 28: not > 28, so not colorful
+    rgba[:, 175:] = (0, 0, 29, 65)  # chroma 29 with alpha 65: colorful
+    path = _write_png(tmp_path / "thresholds.png", rgba)
+    # 10_000/15_000/5_000 sit exactly on the three coverage floors (== passes, < raises).
+    assert validate_png(path) == PixelStats(
+        width=200,
+        height=200,
+        transparent_pixels=10_000,
+        visible_pixels=15_000,
+        colorful_pixels=5_000,
+    )
+
+
+def test_validate_png_rejects_one_column_below_transparent_floor(tmp_path: Path) -> None:
+    rgba = np.full((200, 200, 4), (255, 0, 0, 255), dtype=np.uint8)
+    rgba[:, :49] = (255, 0, 0, 7)  # 49 columns: 9_800 transparent < 10_000 floor (25% of 40_000)
+    path = _write_png(tmp_path / "short.png", rgba)
+    with pytest.raises(ValueError, match="transparent background coverage is too small") as excinfo:
+        validate_png(path)
+    assert str(path) in str(excinfo.value)
 
 
 def test_validate_png_rejects_opaque_background(tmp_path: Path) -> None:
