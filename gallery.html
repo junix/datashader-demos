@@ -1,0 +1,1608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>datashader-demos — gallery</title>
+<style>
+:root{
+  --bg:#fbfaf8; --panel:#fff; --ink:#16181d; --muted:#5f6570; --faint:#8b929e;
+  --line:#e3e1dc; --accent:#2f6f5e; --chip:#eef1ef; --code:#f6f5f2;
+  --shadow:0 1px 2px rgba(20,22,26,.05),0 8px 24px -12px rgba(20,22,26,.18);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0f1114; --panel:#161a1f; --ink:#e8eaee; --muted:#a2abb8; --faint:#727d8c;
+  --line:#262c34; --accent:#6fd3b0; --chip:#1d232a; --code:#12161a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+}}
+:root[data-theme=dark]{
+  --bg:#0f1114; --panel:#161a1f; --ink:#e8eaee; --muted:#a2abb8; --faint:#727d8c;
+  --line:#262c34; --accent:#6fd3b0; --chip:#1d232a; --code:#12161a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:56px 28px 96px}
+header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:40px}
+h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:650}
+.tagline{margin:10px 0 0;color:var(--muted);max-width:70ch;font-size:16px}
+.meta{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);
+  background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:6px 11px}
+.pill b{color:var(--ink);font-weight:600}
+.grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.shot{margin:0;padding:16px;display:flex;flex-direction:column;gap:10px;
+  align-items:center;justify-content:center;height:250px;border-bottom:1px solid var(--line)}
+.shot.tall{height:400px}
+.shot.checker{background-color:#f2f1ee;background-image:
+  linear-gradient(45deg,#e2e0dc 25%,transparent 25%,transparent 75%,#e2e0dc 75%),
+  linear-gradient(45deg,#e2e0dc 25%,transparent 25%,transparent 75%,#e2e0dc 75%);
+  background-size:16px 16px;background-position:0 0,8px 8px}
+.shot.dark{background:#11151a}
+.shot.light{background:#fff}
+.shot img,.shot video{max-width:100%;max-height:100%;width:auto;height:auto;
+  object-fit:contain;display:block;border-radius:3px}
+.shot.multi img{max-height:calc(50% - 5px)}
+.shot .missing{color:var(--faint);font-size:13px;font-style:italic;text-align:center}
+.body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.idx{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint);
+  letter-spacing:.09em;text-transform:uppercase}
+h2{margin:0;font-size:17px;font-weight:620;letter-spacing:-.01em}
+.blurb{margin:0;color:var(--muted);font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.tag{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);
+  background:var(--chip);border-radius:5px;padding:4px 7px}
+details{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--accent);list-style:none;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";display:inline-block;transition:transform .15s}
+details[open] summary::before{content:"▾ "}
+pre{margin:12px 0 0;background:var(--code);border:1px solid var(--line);border-radius:8px;
+  padding:14px;overflow-x:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;
+  max-height:440px;overflow-y:auto}
+pre .c{color:var(--faint);font-style:italic}
+pre .s{color:var(--accent)}
+pre .n{color:#b1784f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) pre .n{color:#d8a06a}}
+:root[data-theme=dark] pre .n{color:#d8a06a}
+.extra{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}
+footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+  color:var(--faint);font-size:13px}
+footer code{background:var(--chip);border-radius:4px;padding:2px 6px;
+  font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>datashader-demos</h1>
+    <p class="tagline">Twelve renderers for data too large to draw mark by mark — points, trajectories, categories, iterative basins, events, uncertainty, networks, terrain, routes and rare observations, each aggregated on a grid and shaded to a transparent PNG.</p>
+    <div class="meta"><span class="pill">Datashader</span><span class="pill"><b>12</b> demos</span><span class="pill"><b>12</b> rendered</span></div>
+  </header>
+  <main class="grid">
+      <article class="card">
+        <figure class="shot dark"><img src="out/point-density-transparent.png" alt="Point density" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">01 · point aggregation</div>
+          <h2>Point density</h2>
+          <p class="blurb">Where do overlapping regimes concentrate?</p>
+          <div class="tags"><span class="tag">density</span><span class="tag">millions</span><span class="tag">points</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/trajectory-bundle-transparent.png" alt="Trajectory bundle" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">02 · trajectory aggregation</div>
+          <h2>Trajectory bundle</h2>
+          <p class="blurb">Which paths converge into shared corridors?</p>
+          <div class="tags"><span class="tag">paths</span><span class="tag">density</span><span class="tag">mobility</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/category-mix-transparent.png" alt="Category mix" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">03 · categorical aggregation</div>
+          <h2>Category mix</h2>
+          <p class="blurb">Where do populations dominate or mix?</p>
+          <div class="tags"><span class="tag">categories</span><span class="tag">mixing</span><span class="tag">territory</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/phase-portrait-transparent.png" alt="Phase portrait" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">04 · dynamical systems</div>
+          <h2>Phase portrait</h2>
+          <p class="blurb">Where do damped trajectories converge?</p>
+          <div class="tags"><span class="tag">phase-space</span><span class="tag">trajectory</span><span class="tag">attractor</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/fractal-basin-transparent.png" alt="Fractal basin" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">05 · iterative systems</div>
+          <h2>Fractal basin</h2>
+          <p class="blurb">Which root captures each starting point?</p>
+          <div class="tags"><span class="tag">fractal</span><span class="tag">categorical</span><span class="tag">solver</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/parameter-sweep-transparent.png" alt="Parameter sweep" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">06 · parameter space</div>
+          <h2>Parameter sweep</h2>
+          <p class="blurb">Where does a logistic system bifurcate into chaos?</p>
+          <div class="tags"><span class="tag">bifurcation</span><span class="tag">chaos</span><span class="tag">sweep</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/event-raster-transparent.png" alt="Event raster" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">07 · event analysis</div>
+          <h2>Event raster</h2>
+          <p class="blurb">When and where do distributed incidents cluster?</p>
+          <div class="tags"><span class="tag">events</span><span class="tag">services</span><span class="tag">severity</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/uncertainty-fan-transparent.png" alt="Uncertainty fan" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">08 · ensemble uncertainty</div>
+          <h2>Uncertainty fan</h2>
+          <p class="blurb">How does forecast uncertainty spread over time?</p>
+          <div class="tags"><span class="tag">ensemble</span><span class="tag">uncertainty</span><span class="tag">forecast</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/network-density-transparent.png" alt="Network density" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">09 · large network</div>
+          <h2>Network density</h2>
+          <p class="blurb">Which network routes form shared corridors?</p>
+          <div class="tags"><span class="tag">network</span><span class="tag">edges</span><span class="tag">density</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/terrain-scan-transparent.png" alt="Terrain scan" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">10 · scalar aggregation</div>
+          <h2>Terrain scan</h2>
+          <p class="blurb">What surface emerges from irregular elevation samples?</p>
+          <div class="tags"><span class="tag">terrain</span><span class="tag">mean</span><span class="tag">raster</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/geo-routes-transparent.png" alt="Geo routes" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">11 · route density</div>
+          <h2>Geo routes</h2>
+          <p class="blurb">Where do origin-destination routes converge?</p>
+          <div class="tags"><span class="tag">routes</span><span class="tag">geo</span><span class="tag">corridor</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+      <article class="card">
+        <figure class="shot dark"><img src="out/rare-outliers-transparent.png" alt="Rare outliers" loading="lazy"></figure>
+        <div class="body">
+          <div class="idx">12 · anomaly analysis</div>
+          <h2>Rare outliers</h2>
+          <p class="blurb">Can rare observations survive dense aggregation?</p>
+          <div class="tags"><span class="tag">outlier</span><span class="tag">rare-event</span><span class="tag">categorical</span><span class="tag">advanced</span></div>
+          <details><summary>src/datashader_demos/render.py</summary><pre><code>def _rare_outliers(rows: int) -&gt; Image.Image:
+    rng = np.random.default_rng(<span class="n">99</span>)
+    x = rng.normal(size=rows) * <span class="n">2.2</span>
+    y = <span class="n">0.6</span> * x + rng.normal(size=rows) * <span class="n">1.2</span>
+    rare = rng.random(rows) &lt; <span class="n">0.004</span>
+    y[rare] += rng.choice([-<span class="n">1</span>, <span class="n">1</span>], rare.sum()) * (<span class="n">4</span> + rng.random(rare.sum()) * <span class="n">2</span>)
+    frame = pd.DataFrame(
+        {
+            <span class="s">&quot;x&quot;</span>: x,
+            <span class="s">&quot;y&quot;</span>: y,
+            <span class="s">&quot;kind&quot;</span>: pd.Categorical(
+                np.where(rare, <span class="s">&quot;rare&quot;</span>, <span class="s">&quot;baseline&quot;</span>), categories=[<span class="s">&quot;baseline&quot;</span>, <span class="s">&quot;rare&quot;</span>]
+            ),
+        }
+    )
+    canvas = ds.Canvas(
+        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(-<span class="n">8</span>, <span class="n">8</span>), y_range=(-<span class="n">8</span>, <span class="n">8</span>)
+    )
+    agg = canvas.points(frame, <span class="s">&quot;x&quot;</span>, <span class="s">&quot;y&quot;</span>, agg=ds.count_cat(<span class="s">&quot;kind&quot;</span>))
+    colors = {<span class="s">&quot;baseline&quot;</span>: <span class="s">&quot;#54d6c6&quot;</span>, <span class="s">&quot;rare&quot;</span>: <span class="s">&quot;#ff6f91&quot;</span>}
+    raster = tf.shade(agg, color_key=colors, how=<span class="s">&quot;eq_hist&quot;</span>, min_alpha=<span class="n">24</span>)
+    raster = tf.spread(raster, px=<span class="n">2</span>).to_pil()
+    return _decorate(
+        raster,
+        title=<span class="s">&quot;Rare-event outlier field&quot;</span>,
+        subtitle=(
+            <span class="s">&quot;A categorical aggregate preserves exceptional observations inside &quot;</span>
+            <span class="s">&quot;a dense baseline cloud.&quot;</span>
+        ),
+        rows=rows,
+        legend=list(colors.items()),
+    )
+
+
+DEMOS: dict[str, Demo] = {
+    <span class="s">&quot;point-density&quot;</span>: Demo(
+        <span class="s">&quot;point-density&quot;</span>,
+        <span class="s">&quot;Constellation of concentrated demand&quot;</span>,
+        <span class="s">&quot;Large point aggregation&quot;</span>,
+        <span class="n">2</span>_000_000,
+        _point_density,
+    ),
+    <span class="s">&quot;trajectory-bundle&quot;</span>: Demo(
+        <span class="s">&quot;trajectory-bundle&quot;</span>,
+        <span class="s">&quot;Braided trajectories through a shared field&quot;</span>,
+        <span class="s">&quot;Path density aggregation&quot;</span>,
+        <span class="n">500</span>_000,
+        _trajectory_bundle,
+    ),
+    <span class="s">&quot;category-mix&quot;</span>: Demo(
+        <span class="s">&quot;category-mix&quot;</span>,
+        <span class="s">&quot;Categorical territories and their borderlands&quot;</span>,
+        <span class="s">&quot;Categorical point aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _category_mix,
+    ),
+    <span class="s">&quot;phase-portrait&quot;</span>: Demo(
+        <span class="s">&quot;phase-portrait&quot;</span>,
+        <span class="s">&quot;Phase-space convergence atlas&quot;</span>,
+        <span class="s">&quot;Trajectory density&quot;</span>,
+        <span class="n">420</span>_000,
+        _phase_portrait,
+    ),
+    <span class="s">&quot;fractal-basin&quot;</span>: Demo(
+        <span class="s">&quot;fractal-basin&quot;</span>,
+        <span class="s">&quot;Newton fractal basins&quot;</span>,
+        <span class="s">&quot;Categorical iterative basin&quot;</span>,
+        <span class="n">500</span>_000,
+        _fractal_basin,
+    ),
+    <span class="s">&quot;parameter-sweep&quot;</span>: Demo(
+        <span class="s">&quot;parameter-sweep&quot;</span>,
+        <span class="s">&quot;Logistic-map parameter sweep&quot;</span>,
+        <span class="s">&quot;Dense bifurcation diagram&quot;</span>,
+        <span class="n">650</span>_000,
+        _parameter_sweep,
+    ),
+    <span class="s">&quot;event-raster&quot;</span>: Demo(
+        <span class="s">&quot;event-raster&quot;</span>,
+        <span class="s">&quot;Distributed event raster&quot;</span>,
+        <span class="s">&quot;Categorical event aggregation&quot;</span>,
+        <span class="n">1</span>_200_000,
+        _event_raster,
+    ),
+    <span class="s">&quot;uncertainty-fan&quot;</span>: Demo(
+        <span class="s">&quot;uncertainty-fan&quot;</span>,
+        <span class="s">&quot;Monte Carlo uncertainty fan&quot;</span>,
+        <span class="s">&quot;Ensemble line density&quot;</span>,
+        <span class="n">480</span>_000,
+        _uncertainty_fan,
+    ),
+    <span class="s">&quot;network-density&quot;</span>: Demo(
+        <span class="s">&quot;network-density&quot;</span>,
+        <span class="s">&quot;Edge-density network field&quot;</span>,
+        <span class="s">&quot;Connection density&quot;</span>,
+        <span class="n">520</span>_000,
+        _network_density,
+    ),
+    <span class="s">&quot;terrain-scan&quot;</span>: Demo(
+        <span class="s">&quot;terrain-scan&quot;</span>,
+        <span class="s">&quot;Streaming terrain scan&quot;</span>,
+        <span class="s">&quot;Mean scalar aggregation&quot;</span>,
+        <span class="n">1</span>_000_000,
+        _terrain_scan,
+    ),
+    <span class="s">&quot;geo-routes&quot;</span>: Demo(
+        <span class="s">&quot;geo-routes&quot;</span>, <span class="s">&quot;Global route convergence&quot;</span>, <span class="s">&quot;Route density&quot;</span>, <span class="n">580</span>_000, _geo_routes
+    ),
+    <span class="s">&quot;rare-outliers&quot;</span>: Demo(
+        <span class="s">&quot;rare-outliers&quot;</span>,
+        <span class="s">&quot;Rare-event outlier field&quot;</span>,
+        <span class="s">&quot;Categorical anomaly density&quot;</span>,
+        <span class="n">1</span>_100_000,
+        _rare_outliers,
+    ),
+}
+</code></pre></details>
+        </div>
+      </article>
+  </main>
+  <footer>
+    Generated by <code>tools/gallery.py</code> — regenerate with <code>just gallery</code>
+    after <code>just build</code>. Images are referenced from
+    <code>out/</code>, so open this file straight from the checkout.
+  </footer>
+</div>
+</body>
+</html>

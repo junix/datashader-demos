@@ -1,0 +1,8 @@
+{
+  "title": "datashader-demos",
+  "library": "Datashader",
+  "tagline": "Twelve renderers for data too large to draw mark by mark — points, trajectories, categories, iterative basins, events, uncertainty, networks, terrain, routes and rare observations, each aggregated on a grid and shaded to a transparent PNG.",
+  "rebuild": "just build",
+  "backdrop": "dark",
+  "code_search": "src/datashader_demos/render.py"
+}
