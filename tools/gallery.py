@@ -14,6 +14,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -30,6 +31,26 @@ RENDERABLE = IMAGE_EXT | VIDEO_EXT
 
 # --------------------------------------------------------------------------
 # discovery
+
+
+def tracked_files() -> set:
+    """Artifacts committed to git.
+
+    The gallery has to look right in a fresh clone, so a committed render
+    always beats an uncommitted one — that is the difference between a page
+    of figures and a page of broken images.
+    """
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(ROOT), "ls-files"],
+            capture_output=True, text=True, timeout=20,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return set(out.stdout.split()) if out.returncode == 0 else set()
+
+
+TRACKED = None
 
 
 def natural_key(text: str) -> list:
@@ -215,7 +236,11 @@ def artifacts_for(stem: str, cfg: dict) -> list[Path]:
         if hits:
             break
     order = {ext: i for i, ext in enumerate(cfg["prefer"])}
-    hits.sort(key=lambda p: (order.get(p.suffix.lstrip(".").lower(), 99), natural_key(p.name)))
+    hits.sort(key=lambda p: (
+        0 if p.relative_to(ROOT).as_posix() in TRACKED else 1,
+        order.get(p.suffix.lstrip(".").lower(), 99),
+        natural_key(p.name),
+    ))
     if not hits:
         return []
     best = hits[0].suffix.lower()
@@ -418,6 +443,8 @@ def render_card(item: dict, cfg: dict) -> str:
 
 
 def build() -> int:
+    global TRACKED
+    TRACKED = tracked_files()
     cfg = load_config()
     catalog = load_catalog()
     blurbs = load_readme_blurbs()
@@ -478,6 +505,10 @@ def build() -> int:
         )
 
     rendered = sum(1 for i in items if i["artifacts"])
+    uncommitted = sum(
+        1 for i in items for a, _ in i["artifacts"]
+        if TRACKED and a.relative_to(ROOT).as_posix() not in TRACKED
+    )
     cards = "\n".join(render_card(i, cfg) for i in items)
     pills = [
         f'<span class="pill"><b>{len(items)}</b> demos</span>',
@@ -516,7 +547,8 @@ def build() -> int:
 """,
         encoding="utf-8",
     )
-    print(f"gallery.html: {len(items)} demos, {rendered} with artifacts")
+    note = f", {uncommitted} artifacts not committed (blank in a fresh clone)" if uncommitted else ""
+    print(f"gallery.html: {len(items)} demos, {rendered} with artifacts{note}")
     return 0 if rendered else 1
 
 
