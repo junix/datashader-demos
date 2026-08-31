@@ -1,14 +1,24 @@
-set shell := ["zsh", "-cu"]
+set shell := ["bash", "-euo", "pipefail", "-c"]
 
-sync:
+default: build
+
+# Sync deps and render every demo into out/.
+build:
     uv sync --group dev
-
-render:
     uv run datashader-demos render
 
-test:
+# Lint, unit tests, then the render/validate gate.
+test: build
     uv run ruff check .
     uv run pytest
-
-validate:
     uv run datashader-demos validate
+
+# Demos repo — no binary, no launcher (ADR-749: nothing to install).
+install:
+    @echo "datashader-demos: demos repo, nothing to install"
+
+# Remove generated images.
+clean:
+    rm -rf out
+    mkdir -p out
+    touch out/.gitkeep
