@@ -47,6 +47,8 @@ h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:650}
 .shot img,.shot video{max-width:100%;max-height:100%;width:auto;height:auto;
   object-fit:contain;display:block;border-radius:3px}
 .shot.multi img{max-height:calc(50% - 5px)}
+.shot.multi{display:grid;grid-template-columns:1fr 1fr;place-items:center;gap:8px}
+.shot.multi img{max-height:100%;max-width:100%}
 .shot .missing{color:var(--faint);font-size:13px;font-style:italic;text-align:center}
 .body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
 .idx{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint);

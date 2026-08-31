@@ -23,6 +23,7 @@ CONFIG = ROOT / "gallery.json"
 OUTPUT = ROOT / "gallery.html"
 
 MAX_BLOCK_LINES = 200
+MAX_ARTIFACTS = 4
 
 IMAGE_EXT = {".png", ".svg", ".gif", ".webp", ".jpg", ".jpeg", ".avif"}
 VIDEO_EXT = {".mp4", ".webm"}
@@ -65,6 +66,7 @@ def load_config() -> dict:
     cfg.setdefault("backdrop", "checker")
     cfg.setdefault("rebuild", "just build")
     cfg.setdefault("artifact_dirs", ["out"])
+    cfg.setdefault("artifact_exclude", "")
     return cfg
 
 
@@ -222,6 +224,7 @@ def artifacts_for(stem: str, cfg: dict) -> list[Path]:
     prefix = cfg["artifact_prefix"].format(stem=stem, num=num.group(1) if num else stem)
     # artifact_dirs is a priority list: a gallery-sized thumbnail wins, but a
     # demo that never got one still shows its full-size render.
+    drop = re.compile(cfg["artifact_exclude"]) if cfg["artifact_exclude"] else None
     hits: list[Path] = []
     for d in cfg["artifact_dirs"]:
         directory = ROOT / d
@@ -231,6 +234,8 @@ def artifacts_for(stem: str, cfg: dict) -> list[Path]:
             if not p.is_file() or p.suffix.lower() not in RENDERABLE:
                 continue
             name = p.stem
+            if drop and drop.search(name):
+                continue
             if name == prefix or name.startswith(prefix + "-") or name.startswith(prefix + "."):
                 hits.append(p)
         if hits:
@@ -251,6 +256,12 @@ def artifacts_for(stem: str, cfg: dict) -> list[Path]:
         stills = [p for p in hits if p.suffix.lower() in IMAGE_EXT]
         return [(v, next((s for s in stills if s.stem.startswith(v.stem)), None)) for v in chosen]
     return [(p, None) for p in chosen]
+
+
+def capped(artifacts: list) -> tuple[list, int]:
+    """Show at most a handful of views per card; a workspace that exports ten
+    diagrams should not turn its card into a scrolling column."""
+    return artifacts[:MAX_ARTIFACTS], max(0, len(artifacts) - MAX_ARTIFACTS)
 
 
 def primary_source_file(path: Path, cfg: dict) -> Path | None:
@@ -360,6 +371,8 @@ h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:650}
 .shot img,.shot video{max-width:100%;max-height:100%;width:auto;height:auto;
   object-fit:contain;display:block;border-radius:3px}
 .shot.multi img{max-height:calc(50% - 5px)}
+.shot.multi{display:grid;grid-template-columns:1fr 1fr;place-items:center;gap:8px}
+.shot.multi img{max-height:100%;max-width:100%}
 .shot .missing{color:var(--faint);font-size:13px;font-style:italic;text-align:center}
 .body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
 .idx{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint);
@@ -401,8 +414,9 @@ def index_line(ordinal: int, stem: str, entry: dict) -> str:
 
 
 def render_card(item: dict, cfg: dict) -> str:
+    shown, hidden = capped(item["artifacts"])
     shot = []
-    for art, poster in item["artifacts"]:
+    for art, poster in shown:
         rel = html.escape(art.relative_to(ROOT).as_posix())
         if art.suffix.lower() in VIDEO_EXT:
             frame = f' poster="{html.escape(poster.relative_to(ROOT).as_posix())}"' if poster else ""
@@ -428,7 +442,7 @@ def render_card(item: dict, cfg: dict) -> str:
         )
 
     klass = f"shot {cfg['backdrop']}"
-    if len(item["artifacts"]) > 1:
+    if len(shown) > 1:
         klass += " multi tall"
     return f"""      <article class="card">
         <figure class="{klass}">{''.join(shot)}</figure>
