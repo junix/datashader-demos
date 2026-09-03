@@ -7,3 +7,12 @@ out/*
 !out/*-transparent.png
 !out/*-transparent.json
 .DS_Store
+# --- appended by gitignore-sweep on 2026-09-03 ---
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+*.egg-info/
+.mypy_cache/
+build/
