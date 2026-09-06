@@ -2,6 +2,8 @@
 
 Twelve production-shaped transparent PNG renderers for data that is too large to draw mark-by-mark, covering points, trajectories, categories, iterative basins, events, uncertainty, networks, terrain, routes, and rare observations.
 
+Browse every demo with its source in **[gallery.html](gallery.html)** — searchable, follows your light/dark theme.
+
 ```bash
 uv sync --group dev
 uv run datashader-demos render

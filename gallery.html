@@ -32,6 +32,19 @@ h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:650}
 .pill{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);
   background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:6px 11px}
 .pill b{color:var(--ink);font-weight:600}
+.controls{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding:12px 0;margin:0 0 26px;background:linear-gradient(var(--bg) 80%,transparent)}
+.controls input{flex:1 1 220px;max-width:400px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);color:var(--ink);padding:9px 13px;font-size:14px;font-family:inherit}
+.controls input:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);cursor:pointer;
+  background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:6px 11px}
+.chip span{color:var(--faint);margin-left:3px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.chip[aria-pressed="true"] span{color:var(--bg);opacity:.75}
+#count{margin-left:auto;color:var(--muted);font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap}
+#empty{color:var(--muted);font-size:14px}
 .grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
   overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
@@ -86,8 +99,14 @@ footer code{background:var(--chip);border-radius:4px;padding:2px 6px;
     <p class="tagline">Twelve renderers for data too large to draw mark by mark — points, trajectories, categories, iterative basins, events, uncertainty, networks, terrain, routes and rare observations, each aggregated on a grid and shaded to a transparent PNG.</p>
     <div class="meta"><span class="pill">Datashader</span><span class="pill"><b>12</b> demos</span><span class="pill"><b>12</b> rendered</span></div>
   </header>
+  <section class="controls" aria-label="Gallery filters">
+    <input id="q" type="search" placeholder="Filter by title, blurb, tag, or family…" autocomplete="off" aria-label="Filter demos">
+    
+    <output id="count" aria-live="polite">12 shown</output>
+  </section>
+  <p id="empty" hidden>No demos match the current filter.</p>
   <main class="grid">
-      <article class="card">
+      <article class="card" data-family="point aggregation" data-search="point density where do overlapping regimes concentrate? density millions points advanced 01 · point aggregation point aggregation">
         <figure class="shot dark"><img src="out/point-density-transparent.png" alt="Point density" loading="lazy"></figure>
         <div class="body">
           <div class="idx">01 · point aggregation</div>
@@ -213,7 +232,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="trajectory aggregation" data-search="trajectory bundle which paths converge into shared corridors? paths density mobility advanced 02 · trajectory aggregation trajectory aggregation">
         <figure class="shot dark"><img src="out/trajectory-bundle-transparent.png" alt="Trajectory bundle" loading="lazy"></figure>
         <div class="body">
           <div class="idx">02 · trajectory aggregation</div>
@@ -339,7 +358,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="categorical aggregation" data-search="category mix where do populations dominate or mix? categories mixing territory advanced 03 · categorical aggregation categorical aggregation">
         <figure class="shot dark"><img src="out/category-mix-transparent.png" alt="Category mix" loading="lazy"></figure>
         <div class="body">
           <div class="idx">03 · categorical aggregation</div>
@@ -465,7 +484,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="dynamical systems" data-search="phase portrait where do damped trajectories converge? phase-space trajectory attractor advanced 04 · dynamical systems dynamical systems">
         <figure class="shot dark"><img src="out/phase-portrait-transparent.png" alt="Phase portrait" loading="lazy"></figure>
         <div class="body">
           <div class="idx">04 · dynamical systems</div>
@@ -591,7 +610,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="iterative systems" data-search="fractal basin which root captures each starting point? fractal categorical solver advanced 05 · iterative systems iterative systems">
         <figure class="shot dark"><img src="out/fractal-basin-transparent.png" alt="Fractal basin" loading="lazy"></figure>
         <div class="body">
           <div class="idx">05 · iterative systems</div>
@@ -717,7 +736,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="parameter space" data-search="parameter sweep where does a logistic system bifurcate into chaos? bifurcation chaos sweep advanced 06 · parameter space parameter space">
         <figure class="shot dark"><img src="out/parameter-sweep-transparent.png" alt="Parameter sweep" loading="lazy"></figure>
         <div class="body">
           <div class="idx">06 · parameter space</div>
@@ -843,7 +862,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="event analysis" data-search="event raster when and where do distributed incidents cluster? events services severity advanced 07 · event analysis event analysis">
         <figure class="shot dark"><img src="out/event-raster-transparent.png" alt="Event raster" loading="lazy"></figure>
         <div class="body">
           <div class="idx">07 · event analysis</div>
@@ -969,7 +988,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="ensemble uncertainty" data-search="uncertainty fan how does forecast uncertainty spread over time? ensemble uncertainty forecast advanced 08 · ensemble uncertainty ensemble uncertainty">
         <figure class="shot dark"><img src="out/uncertainty-fan-transparent.png" alt="Uncertainty fan" loading="lazy"></figure>
         <div class="body">
           <div class="idx">08 · ensemble uncertainty</div>
@@ -1095,7 +1114,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="large network" data-search="network density which network routes form shared corridors? network edges density advanced 09 · large network large network">
         <figure class="shot dark"><img src="out/network-density-transparent.png" alt="Network density" loading="lazy"></figure>
         <div class="body">
           <div class="idx">09 · large network</div>
@@ -1221,7 +1240,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="scalar aggregation" data-search="terrain scan what surface emerges from irregular elevation samples? terrain mean raster advanced 10 · scalar aggregation scalar aggregation">
         <figure class="shot dark"><img src="out/terrain-scan-transparent.png" alt="Terrain scan" loading="lazy"></figure>
         <div class="body">
           <div class="idx">10 · scalar aggregation</div>
@@ -1347,7 +1366,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="route density" data-search="geo routes where do origin-destination routes converge? routes geo corridor advanced 11 · route density route density">
         <figure class="shot dark"><img src="out/geo-routes-transparent.png" alt="Geo routes" loading="lazy"></figure>
         <div class="body">
           <div class="idx">11 · route density</div>
@@ -1473,7 +1492,7 @@ DEMOS: dict[str, Demo] = {
 </code></pre></details>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-family="anomaly analysis" data-search="rare outliers can rare observations survive dense aggregation? outlier rare-event categorical advanced 12 · anomaly analysis anomaly analysis">
         <figure class="shot dark"><img src="out/rare-outliers-transparent.png" alt="Rare outliers" loading="lazy"></figure>
         <div class="body">
           <div class="idx">12 · anomaly analysis</div>
@@ -1606,5 +1625,38 @@ DEMOS: dict[str, Demo] = {
     <code>out/</code>, so open this file straight from the checkout.
   </footer>
 </div>
+<script>
+(function(){
+  var q=document.getElementById('q'),count=document.getElementById('count'),empty=document.getElementById('empty');
+  var cards=[].slice.call(document.querySelectorAll('.card'));
+  var chips=[].slice.call(document.querySelectorAll('.chip'));
+  var family='';
+  function apply(){
+    var t=q.value.trim().toLowerCase(),n=0;
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i];
+      var ok=(!family||c.getAttribute('data-family')===family)&&
+             (!t||(c.getAttribute('data-search')||'').indexOf(t)>=0);
+      c.style.display=ok?'':'none';
+      if(ok)n++;
+    }
+    count.value=n+' / '+cards.length+' shown';
+    empty.hidden=n>0;
+    for(var j=0;j<chips.length;j++){
+      var ch=chips[j];
+      ch.setAttribute('aria-pressed',String(ch.getAttribute('data-family')===family));
+    }
+  }
+  q.addEventListener('input',apply);
+  chips.forEach(function(ch){
+    ch.addEventListener('click',function(){
+      var f=ch.getAttribute('data-family');
+      family=(f===family)?'':f;
+      apply();
+    });
+  });
+  apply();
+})();
+</script>
 </body>
 </html>
