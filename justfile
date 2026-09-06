@@ -34,3 +34,7 @@ clean:
 # Rebuild gallery.html from catalog.json, README.md and the artifacts in out/.
 gallery:
     python3 tools/gallery.py
+
+# Fail unless gallery.html matches the sources and artifacts.
+gallery-check:
+    python3 tools/gallery.py --check
