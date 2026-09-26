@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from importlib.metadata import version as dist_version
 from pathlib import Path
 
 from .render import DEMOS, render_demo, validate_png
@@ -10,6 +11,12 @@ from .render import DEMOS, render_demo, validate_png
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(prog="datashader-demos")
+    result.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=f"%(prog)s {dist_version('datashader-demos')}",
+    )
     subcommands = result.add_subparsers(dest="command", required=True)
     render = subcommands.add_parser("render", help="render transparent PNG artifacts")
     render.add_argument("demos", nargs="*", metavar="DEMO")
