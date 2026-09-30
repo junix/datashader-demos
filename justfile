@@ -1,6 +1,6 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
-install_bin := home_directory() / "sync" / "bin"
+install_bin := env("SYNC_BIN_DIR", home_directory() / "sync" / "bin")
 
 default: build
 
