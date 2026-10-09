@@ -337,19 +337,71 @@ def _event_raster(rows: int) -> Image.Image:
     )
 
 
+UNCERTAINTY_T_RANGE = (0.0, 1.0)
+UNCERTAINTY_Y_RANGE = (-3.0, 5.0)
+# Pointwise central 90% interval: 5th/50th/95th percentile per time step.
+UNCERTAINTY_QUANTILES = (0.05, 0.5, 0.95)
+MEDIAN_OVERLAY_COLOR = "#1f2937"
+INTERVAL_OVERLAY_COLOR = "#7c3aed"
+
+
+def _uncertainty_ensemble(paths: int, steps: int = 180) -> np.ndarray:
+    """Deterministic synthetic ensemble: one row per path, one column per time step."""
+    pid = np.repeat(np.arange(paths), steps)
+    t = np.tile(np.linspace(*UNCERTAINTY_T_RANGE, steps), paths)
+    trend = 1.4 * np.sin(t * 6.2) + 2.2 * t
+    spread = (0.1 + 1.2 * t) * (np.sin(pid * 0.73 + t * 13) + 0.5 * np.cos(pid * 0.19 + t * 7))
+    return (trend + spread).reshape(paths, steps)
+
+
+def _pointwise_interval(
+    ensemble: np.ndarray, quantiles: tuple[float, ...] = UNCERTAINTY_QUANTILES
+) -> np.ndarray:
+    """Pointwise ensemble quantiles along the time axis (one row per quantile)."""
+    return np.quantile(ensemble, quantiles, axis=0)
+
+
+def _interval_overlay(
+    raster: Image.Image, t: np.ndarray, low: np.ndarray, median: np.ndarray, high: np.ndarray
+) -> Image.Image:
+    """Draw white-cased median and 5–95% interval lines over the density raster."""
+    x0, x1 = UNCERTAINTY_T_RANGE
+    y0, y1 = UNCERTAINTY_Y_RANGE
+
+    def pixels(values: np.ndarray) -> list[tuple[float, float]]:
+        px = (t - x0) / (x1 - x0) * raster.width
+        py = (y1 - values) / (y1 - y0) * raster.height
+        return list(zip(px, py, strict=True))
+
+    overlay = Image.new("RGBA", raster.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+
+    def cased(values: np.ndarray, core: str, *, core_width: int, casing_width: int) -> None:
+        points = pixels(values)
+        draw.line(points, fill=(255, 255, 255, 205), width=casing_width, joint="curve")
+        draw.line(points, fill=core, width=core_width, joint="curve")
+
+    cased(median, MEDIAN_OVERLAY_COLOR, core_width=3, casing_width=6)
+    cased(low, INTERVAL_OVERLAY_COLOR, core_width=2, casing_width=5)
+    cased(high, INTERVAL_OVERLAY_COLOR, core_width=2, casing_width=5)
+    return Image.alpha_composite(raster.convert("RGBA"), overlay)
+
+
 def _uncertainty_fan(rows: int) -> Image.Image:
     steps = 180
     paths = max(40, rows // steps)
-    pid = np.repeat(np.arange(paths), steps)
-    t = np.tile(np.linspace(0, 1, steps), paths)
-    trend = 1.4 * np.sin(t * 6.2) + 2.2 * t
-    spread = (0.1 + 1.2 * t) * (np.sin(pid * 0.73 + t * 13) + 0.5 * np.cos(pid * 0.19 + t * 7))
-    y = trend + spread
-    t = np.column_stack((t.reshape(paths, steps), np.full(paths, np.nan))).ravel()
-    y = np.column_stack((y.reshape(paths, steps), np.full(paths, np.nan))).ravel()
+    ensemble = _uncertainty_ensemble(paths, steps)
+    low, median, high = _pointwise_interval(ensemble)
+    t_grid = np.linspace(*UNCERTAINTY_T_RANGE, steps)
+    # NaN separators prevent Datashader from connecting the end of one path to the next.
+    t = np.column_stack((np.tile(t_grid, (paths, 1)), np.full(paths, np.nan))).ravel()
+    y = np.column_stack((ensemble, np.full(paths, np.nan))).ravel()
     frame = pd.DataFrame({"t": t, "y": y})
     canvas = ds.Canvas(
-        plot_width=PLOT_WIDTH, plot_height=PLOT_HEIGHT, x_range=(0, 1), y_range=(-3, 5)
+        plot_width=PLOT_WIDTH,
+        plot_height=PLOT_HEIGHT,
+        x_range=UNCERTAINTY_T_RANGE,
+        y_range=UNCERTAINTY_Y_RANGE,
     )
     agg = canvas.line(frame, "t", "y", agg=ds.count(), axis=0)
     raster = tf.shade(
@@ -358,12 +410,22 @@ def _uncertainty_fan(rows: int) -> Image.Image:
         how="eq_hist",
         min_alpha=18,
     ).to_pil()
+    raster = _interval_overlay(raster, t_grid, low, median, high)
     return _decorate(
         raster,
         title="Monte Carlo uncertainty fan",
-        subtitle="Ensemble path density shows the forecast median, spread, and divergent tails.",
+        subtitle=(
+            "Pointwise median and 5–95% interval of the synthetic ensemble "
+            "over histogram-equalized path density."
+        ),
         rows=len(frame),
-        legend=[("tail", "#35669c"), ("credible band", "#54d6c6"), ("mode", "#ffd166")],
+        legend=[
+            ("sparse", "#35669c"),
+            ("dense", "#ffd166"),
+            ("peak", "#ff6f91"),
+            ("median", MEDIAN_OVERLAY_COLOR),
+            ("5–95% interval", INTERVAL_OVERLAY_COLOR),
+        ],
     )
 
 

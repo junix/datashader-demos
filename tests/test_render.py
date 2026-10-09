@@ -4,10 +4,16 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from PIL import Image
+from PIL import Image, ImageColor
 
 from datashader_demos import DEMOS, render_demo, validate_png
-from datashader_demos.render import PixelStats
+from datashader_demos.render import (
+    INTERVAL_OVERLAY_COLOR,
+    MEDIAN_OVERLAY_COLOR,
+    PixelStats,
+    _pointwise_interval,
+    _uncertainty_ensemble,
+)
 
 
 def _write_png(path: Path, rgba: np.ndarray) -> Path:
@@ -160,3 +166,39 @@ def test_validate_png_rejects_colorless_content(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="colorful data pixels are missing") as excinfo:
         validate_png(path)
     assert str(path) in str(excinfo.value)
+
+
+def test_pointwise_interval_matches_known_small_ensemble() -> None:
+    # Column-wise linear-interpolated quantiles of [0, 10, 20] and [80, 90, 100].
+    ensemble = np.array([[0.0, 100.0], [10.0, 90.0], [20.0, 80.0]])
+    low, median, high = _pointwise_interval(ensemble)
+    assert low == pytest.approx([1.0, 81.0])
+    assert median == pytest.approx([10.0, 90.0])
+    assert high == pytest.approx([19.0, 99.0])
+
+
+def test_uncertainty_interval_brackets_ninety_percent_of_ensemble() -> None:
+    ensemble = _uncertainty_ensemble(200)
+    low, median, high = _pointwise_interval(ensemble)
+    assert low.shape == median.shape == high.shape == (ensemble.shape[1],)
+    assert (low <= median).all()
+    assert (median <= high).all()
+    # The 5–95% bounds define the central 90% interval at every time step.
+    coverage = ((ensemble >= low) & (ensemble <= high)).mean(axis=0)
+    assert coverage.min() == pytest.approx(0.9)
+    assert coverage.max() == pytest.approx(0.9)
+
+
+def test_uncertainty_fan_draws_median_and_interval_overlays(tmp_path: Path) -> None:
+    path = render_demo("uncertainty-fan", tmp_path, rows=28_000)
+    with Image.open(path) as rendered:
+        rgba = np.asarray(rendered.convert("RGBA"))
+    # Overlay cores are drawn opaque on their own layer, so they survive compositing.
+    median_core = np.all(rgba == (*ImageColor.getrgb(MEDIAN_OVERLAY_COLOR), 255), axis=-1)
+    interval_core = np.all(rgba == (*ImageColor.getrgb(INTERVAL_OVERLAY_COLOR), 255), axis=-1)
+    # Plot area only (PLOT_OFFSET + canvas size): both lines run across the fan.
+    assert median_core[170:930, 90:1510].sum() > 2_000
+    assert interval_core[170:930, 90:1510].sum() > 3_000
+    # Legend swatches repeat the overlay colors so labels map onto the drawn lines.
+    assert median_core[950:975, :].sum() > 200
+    assert interval_core[950:975, :].sum() > 200
